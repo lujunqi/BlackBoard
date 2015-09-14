@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:overScrollMode="never" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/level2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:text="老师职称: 中级教师三级"
+                android:textColor="#303030" />
+
+            <TextView
+                android:id="@+id/experience"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="教学年限: 1年"
+                android:textColor="#303030" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="教学特点:"
+                android:textColor="#303030" />
+
+            <TextView
+                android:id="@+id/undergo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:paddingLeft="20dp"
+                android:text="擅长语文和文综，文章多次被刊登在报纸上，擅长语文和文综，文章多次被刊登"
+                android:textColor="#303030" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="教学经历:"
+                android:textColor="#303030" />
+
+            <TextView
+                android:id="@+id/characteristic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:paddingLeft="20dp"
+                android:text="曾辅导过多名小学生及初中生语文，学生学习能力和成绩显著提高，获得了学生及学生家长的肯定和好评"
+                android:textColor="#303030" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="荣誉证书:"
+                android:textColor="#303030" />
+
+            <TextView
+                android:id="@+id/certificate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:paddingLeft="20dp"
+                android:text="多次获得优秀教师称号。。。。。多次获得优秀教师称号。。。。。"
+                android:textColor="#303030" />
+
+            
+            <Button
+                android:id="@+id/room2"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/btn_press_bg"
+                android:gravity="center"
+                android:text="进入教室"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+             <Button
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/btn_press_bg"
+                android:gravity="center"
+                android:text="进入教室"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:visibility="invisible"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/title"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/rg_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/mycenter"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:fadingEdge="none"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/choujiang"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="15dip"
+                android:background="@drawable/btn_round_bg"
+                android:clickable="true"
+                android:drawableLeft="@drawable/choujiang"
+                android:drawablePadding="5dp"
+                android:drawableRight="@drawable/icon_arrow"
+                android:gravity="center_vertical"
+                android:paddingLeft="8dip"
+                android:paddingRight="15dip"
+                android:text="每日抽奖送学币"
+                android:textColor="@drawable/btn_text_color"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dip"
+                android:gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/mydata"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:background="@drawable/btn_top_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/mydata"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="个人资料"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tealist"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:background="@drawable/btn_center_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/shouchang"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="学习收藏"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/learntotal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:background="@drawable/btn_center_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/tongji"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="学习统计"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/yaoqingma"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="10dip"
+                    android:background="@drawable/btn_round_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/mycode"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="我的邀请码"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/about"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="10dip"
+                    android:background="@drawable/btn_round_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/guanyu"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="关于本软件"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/shares"
+                    android:layout_width="fill_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="10dip"
+                    android:background="@drawable/btn_round_bg"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/shares"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/icon_arrow"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="15dip"
+                    android:text="分享本软件"
+                    android:textColor="@drawable/btn_text_color"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

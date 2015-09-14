@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/title"
+        android:gravity="center" >
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:clickable="true"
+            android:onClick="back"
+            android:src="@drawable/btn_back_bg" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/findteacher"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingBottom="3dip"
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip">
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp" >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/header_img"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="fitXY" />
+
+                <ImageView
+                    android:id="@+id/status"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:padding="3dp"
+                    android:scaleType="centerInside" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="赵老师"
+                android:textColor="#303030"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/linearLayout1"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/object"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="科目: 语文"
+                    android:textColor="#303030" />
+
+                <ImageView
+                    android:id="@+id/level"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/huang"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/grade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="辅导年级: 初中"
+                android:textColor="#303030" />
+
+            <TextView
+                android:id="@+id/unver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="学校: 北京大学"
+                android:textColor="#303030" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="3dp"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/btn_message"
+                android:layout_width="60dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn_press_bg"
+                android:gravity="center"
+                
+                android:text="聊天"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/shoucang"
+                android:layout_width="60dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn_shouchang_bg"
+                android:gravity="center"
+                android:onClick="shoucang"
+                android:text="收藏"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.005dip"
+        android:background="#cccccc" />
+
+    <RadioGroup
+        android:id="@+id/rb_main"
+        android:layout_width="match_parent"
+        android:layout_height="40dip"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radio_1"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/checkbox_order"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="简介"
+            android:textColor="@drawable/checkbox_order_text"
+            android:textSize="14sp"
+            android:width="0dip" />
+
+        <RadioButton
+            android:id="@+id/radio_2"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/checkbox_order"
+            android:button="@null"
+            android:gravity="center"
+            android:text="评价"
+            android:textColor="@drawable/checkbox_order_text"
+            android:textSize="14sp"
+            android:width="0dip" />
+
+        <RadioButton
+            android:id="@+id/radio_3"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/checkbox_order"
+            android:button="@null"
+            android:gravity="center"
+            android:text="预约精品课"
+            android:textColor="@drawable/checkbox_order_text"
+            android:textSize="14sp"
+            android:width="0dip" />
+    </RadioGroup>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

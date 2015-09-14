@@ -1,0 +1,76 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainRLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#000000" >
+
+    <!-- 自定义滑动控件 -->
+
+    <com.bairuitech.blackboard.widget.ScrollLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ScrollLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="visible" >
+
+        <!-- 每一页的布局均以一个RelativeLayout来控制，后面类似，这里一共四个 -->
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/welcome1" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/welcome2" >
+
+            <!-- 点击该按钮后就进入OtherActivit了 -->
+
+            <Button
+                android:id="@+id/startBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dip"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/bgr"
+                android:onClick="lijitiyan"
+                android:text="开始\n问吧"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+        </RelativeLayout>
+    </com.bairuitech.blackboard.widget.ScrollLayout>
+
+    <!-- 这个布局是下面显示的小圆点的布局，其中ImageView的数量要与上面RelativeLayout的数量对应 -->
+
+    <LinearLayout
+        android:id="@+id/llayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="25dp"
+        android:orientation="horizontal"
+        android:visibility="visible" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:clickable="true"
+            android:padding="5dp"
+            android:src="@drawable/page_indicator_bg" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:clickable="true"
+            android:padding="5dp"
+            android:src="@drawable/page_indicator_bg" />
+    </LinearLayout>
+
+</RelativeLayout>

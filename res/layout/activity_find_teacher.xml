@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/tabcontent"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="10"
+        android:background="#ffffff" >
+
+       
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/rgmain"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_weight="0.5"
+        android:background="#595959"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/findteacher"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/buttom_menu_bg"
+            android:button="@null"
+            android:drawableTop="@drawable/findteacher"
+            android:gravity="center"
+            android:paddingTop="2.0dp"
+            android:text="@string/findteacher"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/tiwenti"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/buttom_menu_bg"
+            android:button="@null"
+            android:drawableTop="@drawable/tiwenti"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:text="@string/tiwenti"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <RadioButton
+            android:id="@+id/kanhuifang"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/buttom_menu_bg"
+            android:button="@null"
+            android:drawableTop="@drawable/kanhuifang"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:text="@string/kanhuifang"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/buttom_menu_bg"
+            android:button="@null"
+            android:drawableTop="@drawable/message"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:text="@string/message"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/mycenter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/buttom_menu_bg"
+            android:button="@null"
+            android:drawableTop="@drawable/mycenter"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:text="@string/mycenter"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+    </RadioGroup>
+
+</LinearLayout>

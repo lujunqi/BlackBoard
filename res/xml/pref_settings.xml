@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:switchpro="http://schemas.android.com/apk/res/alei.switchpro" >
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="only_pen_input"
+        android:summary="无法用手指进行绘画"
+        android:title="只画笔可用" />
+
+</PreferenceScreen>
