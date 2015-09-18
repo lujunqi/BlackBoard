@@ -5,6 +5,8 @@ package com.bairuitech.blackboard.activity.paint;
  */
 import java.util.Vector;
 
+import com.bairuitech.blackboard.BlackBoardApplication;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -37,14 +39,16 @@ public class TeacherPaintView extends View {
 	private int mWidth;
 	private int mHeight;
 	private Context context;
-
+	public BlackBoardApplication app;
 	private int myColor = 0xffffffff;
 	public boolean touch = false;
-
+	public String username="";
+	
 	public TeacherPaintView(Context context) {
 		super(context);
 
 		this.context = context;
+	
 		initialize();
 	}
 
@@ -87,7 +91,7 @@ public class TeacherPaintView extends View {
 		toast.setText(info);
 		toast.show();
 	}
-
+	private String linetype = "DrawLine";
 	/**
 	 * edit 普通笔
 	 */
@@ -102,7 +106,8 @@ public class TeacherPaintView extends View {
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
 		myPaint.setStrokeWidth(9);
 		this.myPaint = myPaint;
-		command("e,0,0");
+		linetype = "DrawLine";
+//		command("e,0,0");
 	}
 
 	// 橡皮
@@ -118,7 +123,8 @@ public class TeacherPaintView extends View {
 		m_eraserPaint.setXfermode(new PorterDuffXfermode(
 				PorterDuff.Mode.DST_OUT));
 		this.myPaint = m_eraserPaint;
-		command("r,0,0");
+		linetype = "EraseLine";
+//		command("r,0,0");
 	}
 
 	@Override
@@ -131,6 +137,8 @@ public class TeacherPaintView extends View {
 		myCanvas = new Canvas(myBitmap);
 	}
 
+	String line = "";
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!touch) {
@@ -142,25 +150,27 @@ public class TeacherPaintView extends View {
 		case MotionEvent.ACTION_DOWN:
 			touch_start(x, y);
 			invalidate();
-			float dx1= x/(float)mWidth;
-			float dy1= x/(float)mWidth;
-			
-			command("s," + x + "," + y);
+			// command("s," + x + "," + y);
+			// command("{\"x\":" + x + ",\"y\":" + y + "}");
+			line = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
 			invalidate();
 			break;
 		case MotionEvent.ACTION_MOVE:
 			touch_move(x, y);
-			float dx2= x/(float)mWidth;
-			float dy2= x/(float)mWidth;
-			
-			command("m," + x + "," + y);
+			// command("m," + x + "," + y);
+			// command("{\"x\":" + x + ",\"y\":" + y + "}");
+			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
 			invalidate();
 
 			break;
 		case MotionEvent.ACTION_UP:
 			touch_up();
 			invalidate();
-			command("u,0,0");
+			// command("u,0,0");
+			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
+//			command("[wendabang]"+linetype+";[" + line + "]");
+			app.send("s38", "[wendabang]"+linetype+";[" + line + "]");
+			// command("{\"x\":" + x + ",\"y\":" + y + "}");
 			break;
 		}
 
@@ -170,10 +180,9 @@ public class TeacherPaintView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
 		// 背景颜色
+		
 		// canvas.drawColor(getResources().getColor(R.color.blue_dark));
-
 		// 如果不调用这个方法，绘制结束后画布将清空
 		canvas.drawBitmap(myBitmap, 0, 0, mBitmapPaint);
 
@@ -216,7 +225,8 @@ public class TeacherPaintView extends View {
 		myCanvas = new Canvas(myBitmap);
 
 		myPath.reset();
-		command("c,0,0");
+//		command("c,0,0");
+		app.send(username,"[wendabang]PanelClear; \"p\":\"1\"");
 		invalidate();
 	}
 
@@ -228,7 +238,6 @@ public class TeacherPaintView extends View {
 		if (cmd.startsWith("c")) {
 			cmds = new Vector<String>();
 			cmds.add(cmd);
-			System.out.println("clear===================228");
 		}
 
 	}

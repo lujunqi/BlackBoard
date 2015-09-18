@@ -7,7 +7,7 @@
     </style>
 
     <style name="PlatformDialog" parent="android:Theme.Dialog" />
-
+<style name="nornal_style" parent="android:Theme.NoTitleBar"></style>
     <style name="textAppearanceBaseContent" parent="@android:style/TextAppearance.Small.Inverse" />
 
     <style name="ThemeActivity" mce_bogus="1">

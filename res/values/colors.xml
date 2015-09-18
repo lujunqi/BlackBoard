@@ -16,7 +16,14 @@
 -->
 
 <resources>
-
+    <color name="grid_state_pressed">#1Affffff</color>
+    <color name="grid_state_focused">#80000000</color>
+    <color name="voip_interface_text_color">#bababa</color>
+    <color name="black_deep">#FF000000</color>
+    <color name="btn_answer_pressed">#4ebcd3</color>
+    <color name="btn_answer_normal">#2dafa3</color>
+    
+    
     <color name="purple_dark">#9933cc</color>
     <color name="ptrHeaderBackground">#ffe6e6e6</color>
     <color name="ptrHeaderTextColor">#ff787878</color>

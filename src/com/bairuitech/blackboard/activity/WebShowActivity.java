@@ -1,5 +1,6 @@
 package com.bairuitech.blackboard.activity;
 
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -75,7 +76,7 @@ public class WebShowActivity extends Activity {
 			mWebView.removeAllViewsInLayout();
 			mWebView.clearDisappearingChildren();
 			mWebView.clearFocus();
-//			mWebView.clearView();
+			// mWebView.clearView();
 			mWebView.destroy();
 		}
 		super.onDestroy();

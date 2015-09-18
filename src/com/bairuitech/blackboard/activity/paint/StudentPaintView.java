@@ -3,9 +3,9 @@ package com.bairuitech.blackboard.activity.paint;
 /**
  * 学生 绘图
  */
+import java.util.List;
 import java.util.Map;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 
 import android.annotation.SuppressLint;
@@ -25,7 +25,12 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.bairuitech.blackboard.BlackBoardApplication;
-import com.bairuitech.blackboard.common.CallBack;
+import com.bairuitech.blackboard.common.JsonUtil;
+import com.easemob.EMEventListener;
+import com.easemob.EMNotifierEvent;
+import com.easemob.chat.EMChatManager;
+import com.easemob.chat.EMMessage;
+import com.easemob.chat.TextMessageBody;
 
 public class StudentPaintView extends View {
 	// 画笔，定义绘制属性
@@ -211,26 +216,21 @@ public class StudentPaintView extends View {
 
 	}
 
-	class PlayTask extends AsyncTask<Void, IoBuffer, Void> {
+	class PlayTask extends AsyncTask<Void, String, Void> {
 		@SuppressLint("NewApi")
 		@Override
 		protected Void doInBackground(Void... args) {
 			try {
-				
-				if (app.isConnected()) {
-					app.mina_cl = new CallBack() {
-
-						@Override
-						public void run(Map<String, Object> m) {
-							if (m.containsKey("IOBUFFER")) {// 录音 和 抓屏数据
-								IoBuffer buff = (IoBuffer) m.get("IOBUFFER");
-								publishProgress(buff);
+				EMChatManager.getInstance().registerEventListener(
+						new EMEventListener() {
+							@Override
+							public void onEvent(EMNotifierEvent event) {
+								EMMessage msg = (EMMessage) event.getData();
+								TextMessageBody tmsg = (TextMessageBody) msg
+										.getBody();
+								publishProgress(tmsg.getMessage());
 							}
-
-						}
-
-					};
-				}
+						});
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -238,49 +238,110 @@ public class StudentPaintView extends View {
 		}
 
 		@Override
-		protected void onProgressUpdate(IoBuffer... progress) {
+		protected void onProgressUpdate(String... progress) {
 			try {
-				IoBuffer buff = (IoBuffer) progress[0];
-				char type = buff.getChar(); // 消息类型
-				if (type == 'A') { // audio
-					int len = buff.getInt();
-					byte[] audio = new byte[len];
-					buff.get(audio);
-					
-					audioTrack.write(audio.clone(), 0, audio.length);
-				}
-				if (type == 'D') { // draw
-					while (buff.position() < buff.limit()) {
-						char cmd = buff.getChar();
-						float x = buff.getFloat();
-						float y = buff.getFloat();
-						if (cmd == 's') {
-							touch_start(x, y);
-							postInvalidate();
+				String info = progress[0];
+				if (info.startsWith("[wendabang]")) {// 命令
+					if (info.startsWith("[wendabang]DrawLine")) {// 普通笔
+						edit();
+						postInvalidate();
+						String[] buff = info.split(";");
+						if (buff.length == 2) {
+							List<Map<String, Object>> list = JsonUtil
+									.str2JsonList(buff[1]);
+							for (int i = 0; i < list.size(); i++) {
+								Map<String, Object> map = list.get(i);
+								float x = Float.parseFloat(map.get("x") + "");
+								float y = Float.parseFloat(map.get("y") + "");
+								if (i == 0) {
+									touch_start(x, y);
+									postInvalidate();
+								} else if (i == list.size() - 1) {
+									touch_up();
+									postInvalidate();
+								} else {
+									touch_move(x, y);
+									postInvalidate();
+								}
+							}
 						}
-						if (cmd == 'm') {
-							touch_move(x, y);
-							postInvalidate();
-						}
-						if (cmd == 'u') {
-							touch_up();
-							postInvalidate();
-						}
-						if (cmd == 'c') {
-							clear();
-							postInvalidate();
-						}
-						if (cmd == 'r') {
-							eraser();
-							postInvalidate();
-						}
-						if (cmd == 'e') {
-							edit();
-							postInvalidate();
+					}
+					if (info.startsWith("[wendabang]EraseLine")) {// 橡皮
+						eraser();
+						postInvalidate();
+						String[] buff = info.split(";");
+						if (buff.length == 2) {
+							List<Map<String, Object>> list = JsonUtil
+									.str2JsonList(buff[2]);
+							for (int i = 0; i < list.size(); i++) {
+								Map<String, Object> map = list.get(i);
+								float x = Float.parseFloat(map.get("x") + "");
+								float y = Float.parseFloat(map.get("y") + "");
+								if (i == 0) {
+									touch_start(x, y);
+									postInvalidate();
+								} else if (i == list.size() - 1) {
+									touch_up();
+									postInvalidate();
+								} else {
+									touch_move(x, y);
+									postInvalidate();
+								}
+							}
 						}
 					}
 
+					if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
+						clear();
+						postInvalidate();
+					}
+
 				}
+				//
+				// String[] buff = progress[0].split("");
+				// String type = buff[0]; // 消息类型
+				// if (type.equals("A")) { // audio
+				// int len = Integer.parseInt(buff[1]);
+				// byte[] audio = new byte[len];
+				// for (int i = 2; i < buff.length; i++) {
+				// audio[i - 2] = Byte.parseByte(buff[i]);
+				// }
+				// audioTrack.write(audio.clone(), 0, audio.length);
+				// }
+				// if (type.equals("D")) { // draw
+				// for (int i = 1; i < buff.length; i++) {
+				//
+				// String cmd = buff[i];
+				//
+				// float x = Float.parseFloat(buff[++i]);
+				// float y = Float.parseFloat(buff[++i]);
+				// if (cmd.equals("s")) {
+				// touch_start(x, y);
+				// postInvalidate();
+				// }
+				// if (cmd.equals("m")) {
+				// touch_move(x, y);
+				// postInvalidate();
+				// }
+				// if (cmd.equals("u")) {
+				// touch_up();
+				// postInvalidate();
+				// }
+				// if (cmd.equals("c")) {
+				// clear();
+				// postInvalidate();
+				// }
+				// if (cmd.equals("r")) {
+				// eraser();
+				// postInvalidate();
+				// }
+				// if (cmd.equals("e")) {
+				// edit();
+				// postInvalidate();
+				// }
+				// }
+				//
+				// }
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -1,6 +1,8 @@
 package com.bairuitech.blackboard.activity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -25,9 +27,14 @@ import com.bairuitech.blackboard.common.HttpUtil;
 import com.bairuitech.blackboard.common.JsonUtil;
 import com.bairuitech.blackboard.common.Utils;
 import com.easemob.EMCallBack;
+import com.easemob.applib.controller.HXSDKHelper;
 import com.easemob.chat.EMChat;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMGroupManager;
+import com.easemob.chatuidemo.Constant;
+import com.easemob.chatuidemo.DemoHXSDKHelper;
+import com.easemob.chatuidemo.db.UserDao;
+import com.easemob.chatuidemo.domain.User;
 import com.easemob.exceptions.EaseMobException;
 
 /**
@@ -191,17 +198,21 @@ public class LoginActivity extends Activity {
 							try {
 								EMChatManager.getInstance()
 										.createAccountOnServer(
-												"S_" + result.get("UserID"),
-												"S_" + result.get("UserID"));
+												"s" + result.get("UserID"),
+												"s" + result.get("UserID"));
 							} catch (EaseMobException e) {
-								e.printStackTrace();
+//								e.printStackTrace();
 							}
 							EMChatManager.getInstance().login(
-									"S_" + result.get("UserID"),
-									"S_" + result.get("UserID"),
+									"s" + result.get("UserID"),
+									"s" + result.get("UserID"),
 									new EMCallBack() {// 回调
 										@Override
 										public void onSuccess() {
+											EMGroupManager.getInstance().loadAllGroups();
+											EMChatManager.getInstance().loadAllConversations();
+											// 处理好友和群组
+											initializeContacts();
 											runOnUiThread(new Runnable() {
 												public void run() {
 													EMGroupManager
@@ -242,7 +253,7 @@ public class LoginActivity extends Activity {
 							TeaMainActivity.class);
 					LoginActivity.this.startActivity(intent);
 					LoginActivity.this.finish();
-					System.out.println("T_" + result.get("UserID")
+					System.out.println("t" + result.get("UserID")
 							+ "================203");
 					// 设置在线
 					new Thread() {
@@ -250,14 +261,13 @@ public class LoginActivity extends Activity {
 							try {
 								EMChatManager.getInstance()
 										.createAccountOnServer(
-												"T_" + result.get("UserID"),
-												"T_" + result.get("UserID"));
+												"t" + result.get("UserID"),
+												"t" + result.get("UserID"));
 							} catch (EaseMobException e) {
-								e.printStackTrace();
 							}
 							EMChatManager.getInstance().login(
-									"T_" + result.get("UserID"),
-									"T_" + result.get("UserID"),
+									"t" + result.get("UserID"),
+									"t" + result.get("UserID"),
 									new EMCallBack() {// 回调
 										@Override
 										public void onSuccess() {
@@ -298,4 +308,38 @@ public class LoginActivity extends Activity {
 			}
 		}
 	};
+	
+	private void initializeContacts() {
+		Map<String, User> userlist = new HashMap<String, User>();
+		// 添加user"申请与通知"
+		User newFriends = new User();
+		newFriends.setUsername(Constant.NEW_FRIENDS_USERNAME);
+		String strChat = getResources().getString(
+				R.string.Application_and_notify);
+		newFriends.setNick(strChat);
+
+		userlist.put(Constant.NEW_FRIENDS_USERNAME, newFriends);
+		// 添加"群聊"
+		User groupUser = new User();
+		String strGroup = getResources().getString(R.string.group_chat);
+		groupUser.setUsername(Constant.GROUP_USERNAME);
+		groupUser.setNick(strGroup);
+		groupUser.setHeader("");
+		userlist.put(Constant.GROUP_USERNAME, groupUser);
+		
+		// 添加"Robot"
+		User robotUser = new User();
+		String strRobot = getResources().getString(R.string.robot_chat);
+		robotUser.setUsername(Constant.CHAT_ROBOT);
+		robotUser.setNick(strRobot);
+		robotUser.setHeader("");
+		userlist.put(Constant.CHAT_ROBOT, robotUser);
+		
+		// 存入内存
+		((DemoHXSDKHelper)HXSDKHelper.getInstance()).setContactList(userlist);
+		// 存入db
+		UserDao dao = new UserDao(LoginActivity.this);
+		List<User> users = new ArrayList<User>(userlist.values());
+		dao.saveContactList(users);
+	}
 }

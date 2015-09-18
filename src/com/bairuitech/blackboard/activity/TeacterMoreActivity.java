@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -34,8 +32,7 @@ import com.bairuitech.blackboard.common.HttpTask;
 import com.bairuitech.blackboard.common.HttpUtil;
 import com.bairuitech.blackboard.common.JsonUtil;
 import com.bairuitech.blackboard.common.Utils;
-import com.easemob.chat.EMContactManager;
-import com.easemob.exceptions.EaseMobException;
+import com.easemob.chatuidemo.activity.VoiceCallActivity;
 
 public class TeacterMoreActivity extends Activity {
 	private Context context;
@@ -115,7 +112,7 @@ public class TeacterMoreActivity extends Activity {
 			public void run(Map<String, Object> m) {
 				String json = (String) m.get("data");
 				Object obj = JsonUtil.str2Object(json);
-				
+
 				if (obj instanceof Map) {
 					Toast.makeText(context, "没有查询到结果！", Toast.LENGTH_LONG)
 							.show();
@@ -193,46 +190,29 @@ public class TeacterMoreActivity extends Activity {
 					Utils.setTextView(result, undergo, "Characteristic");
 					Utils.setTextView(result, characteristic, "Experience");
 					Utils.setTextView(result, certificate, "Certificate");
-					// 进入教室
-//					Button room = (Button) view1.findViewById(R.id.room);
-//					room.setOnClickListener(new View.OnClickListener() {
-//						@Override
-//						public void onClick(View v) {
-//							Intent intent = new Intent(context,
-//									TeacherEWhiteBoardActivity.class);
-//							intent.putExtra("TeacherID", s_TeacherID);
-//							context.startActivity(intent);
-//						}
-//					});
+					
+					// Button room = (Button) view1.findViewById(R.id.room);
+					// room.setOnClickListener(new View.OnClickListener() {
+					// @Override
+					// public void onClick(View v) {
+					// Intent intent = new Intent(context,
+					// TeacherEWhiteBoardActivity.class);
+					// intent.putExtra("TeacherID", s_TeacherID);
+					// context.startActivity(intent);
+					// }
+					// });
 					// 学生进入教室
 					Button room2 = (Button) view1.findViewById(R.id.room2);
 					room2.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-//							BlackBoardApplication app = (BlackBoardApplication) context
-//									.getApplicationContext();
-//							IoBuffer buf = IoBuffer.allocate(8);
-//							buf.setAutoExpand(true);
-//							buf.putChar('T');
-//							buf.putChar('W');
-//							buf.putInt(Integer.parseInt(s_TeacherID));
-//							buf.flip();
-//							app.send(buf);
-							BlackBoardApplication app = (BlackBoardApplication) context
-									.getApplicationContext();
-							try {
-								EMContactManager.getInstance().addContact("T_"+s_TeacherID, app.get("NickyName")+"请求进入教室！");
-							} catch (EaseMobException e) {
-								e.printStackTrace();
-							}
-							
-							Intent intent = new Intent(context,
-									StudentEWhiteBoardActivity.class);
-							intent.putExtra("TeacherID", s_TeacherID);
-							context.startActivity(intent);
+							context.startActivity(new Intent(context, VoiceCallActivity.class).
+				                    putExtra("username", "t"+s_TeacherID).putExtra("isComingCall", false).
+				                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+						
 						}
 					});
-					
+
 				}
 			}
 		}).execute(params);

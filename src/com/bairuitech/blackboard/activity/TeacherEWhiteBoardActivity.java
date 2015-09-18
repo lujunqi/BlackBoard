@@ -1,12 +1,10 @@
 package com.bairuitech.blackboard.activity;
 
-import java.util.Arrays;
 import java.util.Vector;
-
-import org.apache.mina.core.buffer.IoBuffer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -25,20 +23,21 @@ import com.bairuitech.blackboard.activity.paint.TeacherPaintView;
  * 
  */
 public class TeacherEWhiteBoardActivity extends Activity {
-	private Context context;
+	public static Context context;
 
-	private static final String TAG = "EWhiteBoardActivity";
+	private static final String TAG = "TeacherEWhiteBoardActivity";
 	private TeacherPaintView view_paint;
 	private int myColor;
 	private BlackBoardApplication app;
-	private Object[] draw_mark;
+	private String username;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ewhiteboard);
 		context = this;
-
+		Intent intent = this.getIntent();
+		username = intent.getStringExtra("username");
 		app = (BlackBoardApplication) context.getApplicationContext();
 		initView();
 		initLogic();
@@ -46,6 +45,9 @@ public class TeacherEWhiteBoardActivity extends Activity {
 
 	private void initView() {
 		view_paint = (TeacherPaintView) this.findViewById(R.id.view_paint);
+		view_paint.username = username;
+		view_paint.app = app;
+		
 		myColor = 0xffffffff;
 	}
 
@@ -65,7 +67,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 		// MinaTask mina = new MinaTask();
 		// mina.execute();
 
-		send();
+//		send();
 
 	}
 
@@ -73,70 +75,27 @@ public class TeacherEWhiteBoardActivity extends Activity {
 
 	}
 
-	public void send() {
-
-		isRecording = true;
-		new Thread() {// 录音
-			public void run() {
-				byte[] record_buf = new byte[recBufSize];
-				audioRecord.startRecording();// 开始录制
-				while (isRecording) {
-					if (app.isConnected()) {
-
-						audioRecord.read(record_buf, 0, recBufSize);
-						// byte[] buff2 = Utils.gzip(record_buf);
-						IoBuffer buf = IoBuffer.allocate(8);
-						buf.setAutoExpand(true);
-						buf.putChar('A');
-						buf.putInt(record_buf.length);
-						buf.put(record_buf.clone());
-						buf.flip();
-
-//						app.send(buf);
-
-					}
-				}
-				audioRecord.stop();
-			}
-		}.start();
-
-		new Thread() { // 录屏
-			public void run() {
-				int step = 0;
-				while (isRecording) {
-					if (app.isConnected()) {
-						Vector<String> cmds = view_paint.getCmds();
-
-						Object[] buff = cmds.toArray();
-
-						if (!Arrays.equals(buff, draw_mark) || step > 50) {
-							IoBuffer buf = IoBuffer.allocate(8);
-							buf.setAutoExpand(true);
-							buf.putChar('D');
-							for (int i = 0; i < cmds.size(); i++) {
-								String info = cmds.get(i);
-								String[] c = info.split(",");
-								buf.putChar(c[0].charAt(0));
-								buf.putFloat(Float.parseFloat(c[1]));
-								buf.putFloat(Float.parseFloat(c[2]));
-							}
-							step = 0;
-							buf.flip();
-							app.send(buf);
-
-						}
-						draw_mark = buff.clone();
-					}
-					try {
-						step++;
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
+//	public void send() {
+//
+//		isRecording = true;
+//
+//		new Thread() { // 录屏
+//			public void run() {
+//				while (isRecording) {
+//					Vector<String> v = view_paint.getCmds();
+//					for (int i = 0; i < v.size(); i++) {
+//						String content = v.get(i);
+//						app.send(username, content);
+//					}
+//					try {
+//						Thread.sleep(1000);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}.start();
+//	}
 
 	public void edit(View v) {
 		view_paint.edit(myColor);

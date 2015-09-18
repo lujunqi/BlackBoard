@@ -1,4 +1,5 @@
 package com.bairuitech.blackboard.activity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import com.bairuitech.blackboard.R;
 import com.bairuitech.blackboard.widget.OnViewChangeListener;
 import com.bairuitech.blackboard.widget.ScrollLayout;
+
 /**
  * 欢迎页
  */

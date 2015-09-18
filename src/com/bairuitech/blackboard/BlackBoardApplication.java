@@ -1,63 +1,133 @@
 package com.bairuitech.blackboard;
 
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.service.IoHandlerAdapter;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.DatagramSessionConfig;
-import org.apache.mina.transport.socket.nio.NioDatagramConnector;
-
-import android.annotation.SuppressLint;
 import android.app.Application;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.util.Log;
 
 import com.bairuitech.blackboard.common.CallBack;
-import com.bairuitech.blackboard.common.Utils;
-import com.prism.mina.iobuffer.dto.HachiKeepAliveFilterInMina;
+import com.easemob.EMCallBack;
+import com.easemob.chat.EMChat;
+import com.easemob.chat.EMChatManager;
+import com.easemob.chat.EMConversation;
+import com.easemob.chat.EMMessage;
+import com.easemob.chat.TextMessageBody;
+import com.easemob.chatuidemo.DemoHXSDKHelper;
 
 public class BlackBoardApplication extends Application {
 	private static final String TAG = "BlackBoardApplication";
-	public ConnectFuture future;
 	private Map<String, Object> params = new HashMap<String, Object>();
 	public Set<Integer> tea_online = new HashSet<Integer>();
 	public Set<Integer> stu_online = new HashSet<Integer>();
 	public CallBack mina_cl;
-	private NioDatagramConnector connector = new NioDatagramConnector();
+	public static Context applicationContext;
+	private static BlackBoardApplication instance;
+	// login user name
+	public final String PREF_USERNAME = "username";
+
+	/**
+	 * 当前用户nickname,为了苹果推送不是userid而是昵称
+	 */
+	public static String currentUserNick = "";
+	public static DemoHXSDKHelper hxSDKHelper = new DemoHXSDKHelper();
+
+	public void send(String username, String content) {
+		EMConversation conversation = EMChatManager.getInstance()
+				.getConversation(username);
+		// 创建一条文本消息
+		EMMessage message = EMMessage.createSendMessage(EMMessage.Type.TXT);
+		// 设置消息body
+		TextMessageBody txtBody = new TextMessageBody(content);
+		message.addBody(txtBody);
+		// 设置接收人
+		message.setReceipt(username);
+		// 把消息加入到此会话对象中
+		conversation.addMessage(message);
+		// 发送消息
+		EMChatManager.getInstance().sendMessage(message, new EMCallBack() {
+
+			@Override
+			public void onError(int arg0, String arg1) {
+				System.out.println("===============59"+arg1);
+			}
+
+			@Override
+			public void onProgress(int arg0, String arg1) {
+				System.out.println("===============63"+arg1);
+			}
+
+			@Override
+			public void onSuccess() {
+				System.out.println("===============69");
+			}
+		});
+	}
 
 	@Override
 	public void onCreate() {
-
-		new MinaTask().execute();
-
+		EMChat.getInstance().init(this);
+		EMChat.getInstance().setDebugMode(true);
 		Log.d(TAG, "[BlackBoardApplication] onCreate");
 		super.onCreate();
+		applicationContext = this;
+		instance = this;
+
+		hxSDKHelper.onInit(applicationContext);
 
 	}
 
-	public void send(IoBuffer buff) {
-		if (future != null) {
-			if (future.isConnected()) {
-				IoSession session = future.getSession();
-				session.write(buff);
-			}
-		}
+	public static BlackBoardApplication getInstance() {
+	
+		return instance;
 	}
 
-	public boolean isConnected() {
-		if (future != null) {
-			if (future.isConnected()) {
-				return true;
-			}
-		}
-		return false;
+	/**
+	 * 获取当前登陆用户名
+	 * 
+	 * @return
+	 */
+	public String getUserName() {
+		return hxSDKHelper.getHXId();
+	}
+
+	/**
+	 * 获取密码
+	 * 
+	 * @return
+	 */
+	public String getPassword() {
+		return hxSDKHelper.getPassword();
+	}
+
+	/**
+	 * 设置用户名
+	 * 
+	 * @param user
+	 */
+	public void setUserName(String username) {
+		hxSDKHelper.setHXId(username);
+	}
+
+	/**
+	 * 设置密码 下面的实例代码 只是demo，实际的应用中需要加password 加密后存入 preference 环信sdk
+	 * 内部的自动登录需要的密码，已经加密存储了
+	 * 
+	 * @param pwd
+	 */
+	public void setPassword(String pwd) {
+		hxSDKHelper.setPassword(pwd);
+	}
+
+	/**
+	 * 退出登录,清空数据
+	 */
+	public void logout(final boolean isGCM, final EMCallBack emCallBack) {
+		// 先调用sdk logout，在清理app中自己的数据
+		hxSDKHelper.logout(isGCM, emCallBack);
 	}
 
 	public void put(String key, Object val) {
@@ -70,121 +140,6 @@ public class BlackBoardApplication extends Application {
 
 	public boolean containsKey(String key) {
 		return params.containsKey(key);
-	}
-
-	// 录制
-	class MinaTask extends AsyncTask<Void, IoBuffer, Void> {
-		@SuppressLint("NewApi")
-		@Override
-		protected Void doInBackground(Void... args) {
-			try {
-
-				connector.setHandler(new IoHandlerAdapter() {
-					@Override
-					public void exceptionCaught(IoSession session,
-							Throwable cause) throws Exception {
-						System.out.println("服务器发生异常： {}" + cause.getMessage());
-					}
-
-					@Override
-					public void messageReceived(IoSession session,
-							Object message) throws Exception {
-						IoBuffer buff = (IoBuffer) message;
-						publishProgress(buff);
-
-					}
-				});
-
-				connector.setConnectTimeoutMillis(30000);
-				connector.setConnectTimeoutCheckInterval(10000);
-				DefaultIoFilterChainBuilder filterChain = connector
-						.getFilterChain();
-				// filterChain.addLast("codec", new ProtocolCodecFilter(
-				// new CmccSipcCodecFactory(Charset.forName("UTF-8"))));
-				// 心跳
-				filterChain.addLast("keep-alive",
-						new HachiKeepAliveFilterInMina());
-
-				DatagramSessionConfig dcfg = connector.getSessionConfig();
-				dcfg.setReadBufferSize(Utils.SIZE);// 设置接收最大字节默认2048
-				dcfg.setMaxReadBufferSize(Utils.SIZE);
-				dcfg.setReceiveBufferSize(Utils.SIZE);// 设置输入缓冲区的大小
-				dcfg.setSendBufferSize(Utils.SIZE);// 设置输出缓冲区的大小
-				dcfg.setReuseAddress(true);// 设置每一个非主监听连接的端口可以重用
-
-				future = connector.connect(new InetSocketAddress("10.80.1.212",
-						9999));
-
-				// future = connector.connect(new InetSocketAddress(
-				// "120.24.76.197", 9999));
-				future.awaitUninterruptibly();
-
-				// IoSession session = future.getSession();
-				// 关闭连接
-				// session.getCloseFuture().awaitUninterruptibly();
-				// connector.dispose();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(IoBuffer... progress) {
-			IoBuffer buff = progress[0];
-			if (buff.limit() == 8) {// 状态
-				char type = buff.getChar(); // 老师 或 学生
-				char io = buff.getChar(); // 开通或关闭
-				int id = buff.getInt(); // id
-				IoSession session = future.getSession();
-				session.setAttribute("TYPE", type);
-				session.setAttribute("ID", id);
-				if (type == 'T') {
-					if (io == 'O') {
-						tea_online.add(id);
-					}
-					if (io == 'C') {
-						tea_online.remove(id);
-					}
-					if (io == 'W') {// 弹出白板
-
-						int myId = Integer.parseInt(params.get("UserID") + "");
-
-						if (id == myId) {
-							Map<String, Object> m = new HashMap<String, Object>();
-							m.put("WAKEUP", buff);
-							mina_cl.run(m);
-						}
-
-					}
-				}
-				if (type == 'S') {
-					if (io == 'O') {
-						stu_online.add(id);
-					}
-					if (io == 'C') {
-						stu_online.remove(id);
-					}
-
-				}
-			} else {
-				if (mina_cl != null) {
-					Map<String, Object> m = new HashMap<String, Object>();
-					m.put("IOBUFFER", buff);
-					mina_cl.run(m);
-				}
-			}
-
-			super.onProgressUpdate(progress);
-
-		}
-
-		protected void onPostExecute(Void result) {
-		}
-
-		protected void onPreExecute() {
-		}
-
 	}
 
 }
