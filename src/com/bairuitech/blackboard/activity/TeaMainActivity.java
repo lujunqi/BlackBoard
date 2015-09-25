@@ -8,14 +8,15 @@ import java.util.Map;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -58,7 +59,7 @@ public class TeaMainActivity extends Activity {
 		LayoutInflater inflater = getLayoutInflater();
 		view1 = inflater.inflate(R.layout.view_huifang_teacher1, null);// 回放
 		view2 = inflater.inflate(R.layout.view_teacher2, null);// 评价
-		view3 = inflater.inflate(R.layout.view_teacher3, null);// 精品课
+		view3 = inflater.inflate(R.layout.activity_mytea, null);// 老师个人中心
 
 		MyViewPagerAdapter mPagerAdapter = new MyViewPagerAdapter(view1, view2,
 				view3);
@@ -106,7 +107,6 @@ public class TeaMainActivity extends Activity {
 				int radioButtonId = rg.getCheckedRadioButtonId();
 				switch (radioButtonId) {
 				case R.id.radio_1:
-					Log.d(TAG, "=================1");
 					initView1();
 					mPager.setCurrentItem(0);
 					break;
@@ -115,6 +115,7 @@ public class TeaMainActivity extends Activity {
 					mPager.setCurrentItem(1);
 					break;
 				case R.id.radio_3:
+					initView3();
 					mPager.setCurrentItem(2);
 					break;
 				}
@@ -135,7 +136,27 @@ public class TeaMainActivity extends Activity {
 
 	};
 	List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
+	
+	private void initView3() {
+		TextView mydata =  (TextView) view3.findViewById(R.id.mydata);
+		mydata.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(context, MyTeaDataActivity.class);
+				context.startActivity(intent);
+			}
+			
+		});
+		TextView stulist =  (TextView) view3.findViewById(R.id.stulist);
+		stulist.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(context, MyStudentActivity.class);
+				context.startActivity(intent);
+			}
+			
+		});
+	}
 	@SuppressLint("InlinedApi")
 	private void initView1() {
 		swipeView = (SwipeRefreshLayout) view1

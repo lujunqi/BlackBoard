@@ -61,6 +61,10 @@ public class RegisterActivity extends Activity {
 		if ("student".equals(regType)) {
 			rg_type.setText("学生注册");
 		}
+		if ("teacher".equals(regType)) {
+			rg_type.setText("老师注册");
+		}
+		
 	}
 
 	// 获取验证码
@@ -104,7 +108,7 @@ public class RegisterActivity extends Activity {
 		String s_ed_code = Utils.toString(ed_code.getText());
 		String s_ed_yaoqing = Utils.toString(ed_yaoqing.getText());
 		Log.d(TAG, s_ed_phone + "+" + s_ed_email + "+" + s_ed_nickname + "+"
-				+ s_ed_password + "+" + s_ed_password2);
+				+ s_ed_password + "+" + s_ed_password2+"=="+regType);
 		if (Utils.isNulls(s_ed_phone, s_ed_nickname, s_ed_password,
 				s_ed_password2)) {
 			Toast.makeText(context, "请输入完整的注册信息", Toast.LENGTH_LONG).show();
@@ -120,6 +124,13 @@ public class RegisterActivity extends Activity {
 		params.put("ed_code", s_ed_code);
 
 		params.put("Action", "AddStudent");
+		if ("teacher".equals(regType)) {
+			params.put("Action", "AddTeacher");
+			params.put("Grade", "0");
+			params.put("Subject", "0");
+			
+		}
+		
 		params.put("Mobile", s_ed_phone);
 		params.put("ed_email", s_ed_email);
 		params.put("NickName", s_ed_nickname);
@@ -150,7 +161,26 @@ public class RegisterActivity extends Activity {
 					}
 
 				}
+				if ("teacher".equals(regType)) {
+					if ("10000".equals(result.get("Result")+"")) {
+						Toast.makeText(context, "注册成功~", Toast.LENGTH_LONG)
+								.show();
+						Intent intent = new Intent(RegisterActivity.this,
+								LoginActivity.class);
+						RegisterActivity.this.startActivity(intent);
+						RegisterActivity.this.finish();
+					} else if ("1062".equals(result.get("Result")+"")) {
+						Toast.makeText(context, "电话号码已存在", Toast.LENGTH_LONG)
+								.show();
+					} else if ("10001".equals(result.get("Result")+"")) {
+						Toast.makeText(context, "注册失败", Toast.LENGTH_LONG)
+								.show();
+					} else {
+						Toast.makeText(context, "其他问题", Toast.LENGTH_LONG)
+								.show();
+					}
 
+				}
 			}
 		}).execute(params);
 	}

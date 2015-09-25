@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.bairuitech.blackboard.R;
-import com.easemob.chat.EMCallStateChangeListener;
-import com.easemob.chat.EMChatManager;
 
 /**
  * 学生 黑板

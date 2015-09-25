@@ -168,12 +168,12 @@
             android:src="@drawable/ic_eraser" />
 
         <ImageView
-            android:id="@+id/touch"
+            android:id="@+id/color"
             android:layout_width="50dip"
             android:layout_height="50dip"
             android:layout_marginTop="3dip"
             android:background="@color/red"
-            android:onClick="touch"
+            android:onClick="color"
             android:padding="3dip"
             android:scaleType="center"
              />

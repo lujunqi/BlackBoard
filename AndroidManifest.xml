@@ -107,6 +107,14 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
+        <!-- 老师个人资料 -->
+        <activity
+            android:name="com.bairuitech.blackboard.activity.MyTeaDataActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        
         <!-- 学生主程序 老师详情 -->
         <activity
             android:name="com.bairuitech.blackboard.activity.TeacterMoreActivity"
@@ -159,7 +167,14 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
-
+        <!-- 辅导学生列表 -->
+        <activity
+            android:name="com.bairuitech.blackboard.activity.MyStudentActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        
         <!-- 设置环信应用的appkey********************************************************************** -->
         <!-- 开屏页 -->
          <activity

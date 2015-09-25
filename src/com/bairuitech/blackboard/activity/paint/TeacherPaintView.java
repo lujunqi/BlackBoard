@@ -5,8 +5,6 @@ package com.bairuitech.blackboard.activity.paint;
  */
 import java.util.Vector;
 
-import com.bairuitech.blackboard.BlackBoardApplication;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,6 +17,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
+
+import com.bairuitech.blackboard.BlackBoardApplication;
 
 public class TeacherPaintView extends View {
 	// 画笔，定义绘制属性
@@ -42,13 +42,13 @@ public class TeacherPaintView extends View {
 	public BlackBoardApplication app;
 	private int myColor = 0xffffffff;
 	public boolean touch = false;
-	public String username="";
-	
+	public String username = "";
+
 	public TeacherPaintView(Context context) {
 		super(context);
 
 		this.context = context;
-	
+
 		initialize();
 	}
 
@@ -87,11 +87,14 @@ public class TeacherPaintView extends View {
 		toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
 	}
 
-	private void toast(String info) {
+
+	public void toast(String info) {
 		toast.setText(info);
 		toast.show();
 	}
+
 	private String linetype = "DrawLine";
+
 	/**
 	 * edit 普通笔
 	 */
@@ -107,7 +110,7 @@ public class TeacherPaintView extends View {
 		myPaint.setStrokeWidth(9);
 		this.myPaint = myPaint;
 		linetype = "DrawLine";
-//		command("e,0,0");
+		// command("e,0,0");
 	}
 
 	// 橡皮
@@ -124,7 +127,7 @@ public class TeacherPaintView extends View {
 				PorterDuff.Mode.DST_OUT));
 		this.myPaint = m_eraserPaint;
 		linetype = "EraseLine";
-//		command("r,0,0");
+		// command("r,0,0");
 	}
 
 	@Override
@@ -168,8 +171,8 @@ public class TeacherPaintView extends View {
 			invalidate();
 			// command("u,0,0");
 			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
-//			command("[wendabang]"+linetype+";[" + line + "]");
-			app.send("s38", "[wendabang]"+linetype+";[" + line + "]");
+			// command("[wendabang]"+linetype+";[" + line + "]");
+			app.send("s38", "[wendabang]" + linetype + ";[" + line + "]");
 			// command("{\"x\":" + x + ",\"y\":" + y + "}");
 			break;
 		}
@@ -181,7 +184,7 @@ public class TeacherPaintView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		// 背景颜色
-		
+
 		// canvas.drawColor(getResources().getColor(R.color.blue_dark));
 		// 如果不调用这个方法，绘制结束后画布将清空
 		canvas.drawBitmap(myBitmap, 0, 0, mBitmapPaint);
@@ -208,7 +211,6 @@ public class TeacherPaintView extends View {
 	}
 
 	private void touch_up() {
-
 		myPath.lineTo(mX, mY);
 		// commit the path to our offscreen
 		myCanvas.drawPath(myPath, myPaint);
@@ -225,22 +227,12 @@ public class TeacherPaintView extends View {
 		myCanvas = new Canvas(myBitmap);
 
 		myPath.reset();
-//		command("c,0,0");
-		app.send(username,"[wendabang]PanelClear; \"p\":\"1\"");
+		// command("c,0,0");
+		app.send(username, "[wendabang]PanelClear; \"p\":\"1\"");
 		invalidate();
 	}
 
 	private Vector<String> cmds = new Vector<String>();
-
-	private void command(String cmd) {
-
-		cmds.add(cmd);
-		if (cmd.startsWith("c")) {
-			cmds = new Vector<String>();
-			cmds.add(cmd);
-		}
-
-	}
 
 	public Vector<String> getCmds() {
 		return cmds;

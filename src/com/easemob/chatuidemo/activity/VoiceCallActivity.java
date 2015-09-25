@@ -232,7 +232,7 @@ public class VoiceCallActivity extends CallActivity implements OnClickListener {
 								intent.putExtra("username", username);
 								context.startActivity(intent);
 							}
-							
+
 						}
 
 					});
@@ -254,14 +254,18 @@ public class VoiceCallActivity extends CallActivity implements OnClickListener {
 									((Activity) context).finish();
 									finish();
 									if (username.startsWith("t")) {// 学生向老师发生请求
-										((Activity) StudentEWhiteBoardActivity.context)
-												.finish();
+										try {
+											((Activity) StudentEWhiteBoardActivity.context)
+													.finish();
+										} catch (Exception e) {
+
+										}
 									}
 									if (username.startsWith("s")) {// 学生向老师发生请求
 										((Activity) TeacherEWhiteBoardActivity.context)
 												.finish();
 									}
-									
+
 								}
 
 							}, 200);

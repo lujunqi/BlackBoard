@@ -47,7 +47,7 @@ public class LoginActivity extends Activity {
 	private Button login;
 	private Context context;
 	private CheckBox save;
-	private TextView student_rg, forget_password;
+	private TextView student_rg, forget_password,teacher_rg;
 	private static final String TAG = "LoginActivity";
 
 	@Override
@@ -66,6 +66,7 @@ public class LoginActivity extends Activity {
 		login = (Button) this.findViewById(R.id.login);
 		save = (CheckBox) this.findViewById(R.id.save);
 		student_rg = (TextView) this.findViewById(R.id.student_rg);
+		teacher_rg = (TextView) this.findViewById(R.id.teacher_rg);
 		forget_password = (TextView) this.findViewById(R.id.forget_password);
 	}
 
@@ -89,6 +90,8 @@ public class LoginActivity extends Activity {
 		login.setOnClickListener(loginClick);
 		// 学生注册
 		student_rg.setOnClickListener(student_rgClick);
+		teacher_rg.setOnClickListener(teacher_rgClick);
+		
 		// 初始化账号密码
 		String s_username = sharedPreferences.getString("username", "");
 		String s_password = sharedPreferences.getString("password", "");
@@ -113,6 +116,21 @@ public class LoginActivity extends Activity {
 			LoginActivity.this.finish();
 		}
 	};
+	// 老师注册
+	
+	private OnClickListener teacher_rgClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			Intent intent = new Intent(LoginActivity.this,
+					RegisterActivity.class);
+			intent.putExtra("regType", "teacher");
+			LoginActivity.this.startActivity(intent);
+			LoginActivity.this.finish();
+		}
+
+	};
+
 	// 学生注册
 	private OnClickListener student_rgClick = new OnClickListener() {
 
