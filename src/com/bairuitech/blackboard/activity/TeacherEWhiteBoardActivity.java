@@ -8,7 +8,9 @@ import java.util.Map;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -16,9 +18,9 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
@@ -45,6 +47,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 	private BlackBoardApplication app;
 	private String username;
 	private ImageView color;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,7 +63,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 	private void initView() {
 		view_paint = (TeacherPaintView) this.findViewById(R.id.view_paint);
 		color = (ImageView) this.findViewById(R.id.color);
-		
+
 		view_paint.username = username;
 		view_paint.app = app;
 
@@ -80,15 +83,26 @@ public class TeacherEWhiteBoardActivity extends Activity {
 		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency,
 				channelConfiguration, audioEncoding, playBufSize,
 				AudioTrack.MODE_STREAM);
-		// MinaTask mina = new MinaTask();
-		// mina.execute();
 
-		// send();
-
+//		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//		startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
 
-	public void takephoto(View v) {
+	private static final int CAMERA_REQUEST = 1888;
 
+	public void takephoto(View v) {//插入照片
+
+		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);// 构造intent
+		startActivityForResult(cameraIntent, CAMERA_REQUEST);// 发出intent，并要求返回调用结果
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == CAMERA_REQUEST) {
+			if(data!=null){
+				Bitmap photo = (Bitmap) data.getExtras().get("data");
+				view_paint.drawBitmap(photo);
+			}
+		}
 	}
 
 	public void edit(View v) {
@@ -99,37 +113,52 @@ public class TeacherEWhiteBoardActivity extends Activity {
 		view_paint.eraser();
 	}
 
+	public void shape(View v) {
+		final String[] items = new String[] { "9", "15", "20", "25" };
+		new AlertDialog.Builder(this).setTitle("选择线宽")
+				.setItems(items, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface arg0, int which) {
+						view_paint.setStrokeWidth(Integer
+								.parseInt(items[which]));
+						view_paint.edit(myColor);
+					}
+
+				}).setNegativeButton("确定", null).show();
+
+	}
+
 	public void color(View v) {
-		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		final List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		
-		map = new HashMap<String,Object>();
+
+		map = new HashMap<String, Object>();
 		map.put("color", Color.RED);
 		map.put("name", "红色");
 		list.add(map);
-		
-		map = new HashMap<String,Object>();
+
+		map = new HashMap<String, Object>();
 		map.put("color", Color.BLUE);
 		map.put("name", "蓝色");
 		list.add(map);
-		
-		map = new HashMap<String,Object>();
+
+		map = new HashMap<String, Object>();
 		map.put("color", Color.YELLOW);
 		map.put("name", "黄色");
 		list.add(map);
-		
-		map = new HashMap<String,Object>();
+
+		map = new HashMap<String, Object>();
 		map.put("color", Color.WHITE);
 		map.put("name", "白色");
 		list.add(map);
-		
-		
+
 		LayoutInflater inflater = getLayoutInflater();
 		View view = inflater.inflate(R.layout.view_color, null);
 		ListView info_list_view = (ListView) view
 				.findViewById(R.id.info_list_view);
-		MyBaseAdapter adapter = new MyBaseAdapter(context,
-				R.layout.item_color, list, new CallBack() {
+		MyBaseAdapter adapter = new MyBaseAdapter(context, R.layout.item_color,
+				list, new CallBack() {
 					@Override
 					public void run(Map<String, Object> m) {
 						View view = (View) m.get("view");
@@ -137,31 +166,32 @@ public class TeacherEWhiteBoardActivity extends Activity {
 						Map<String, Object> data = (Map<String, Object>) m
 								.get("data");
 						View myColor = (View) view.findViewById(R.id.myColor);
-						TextView myColorText = (TextView) view.findViewById(R.id.myColorText);
-						myColorText.setText(data.get("name")+"");
-						myColor.setBackgroundColor(Integer.parseInt(data.get("color")+""));
+						TextView myColorText = (TextView) view
+								.findViewById(R.id.myColorText);
+						myColorText.setText(data.get("name") + "");
+						myColor.setBackgroundColor(Integer.parseInt(data
+								.get("color") + ""));
 					}
 				});
 		info_list_view.setAdapter(adapter);
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		
+
 		builder.setView(view);
-		final AlertDialog ad =builder.create(); 
+		final AlertDialog ad = builder.create();
 		ad.show();
-		
-		info_list_view.setOnItemClickListener(new OnItemClickListener(){
+
+		info_list_view.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, int arg2,
 					long lng) {
-				Map<String,Object> map = list.get(arg2);
-				int clr = Integer.parseInt(""+map.get("color"));
+				Map<String, Object> map = list.get(arg2);
+				int clr = Integer.parseInt("" + map.get("color"));
 				myColor = clr;
 				color.setBackgroundColor(clr);
 				view_paint.edit(myColor);
 				ad.dismiss();
 			}
 		});
-		
 
 	}
 

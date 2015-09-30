@@ -26,20 +26,18 @@
             android:background="#000000"
             android:visibility="gone" />
 
-            <com.bairuitech.blackboard.activity.paint.TeacherPaintView
-                android:id="@+id/view_paint"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="bottom|right"
-                
-                android:paddingBottom="10dip"
-                android:paddingRight="15dip"
-                android:shadowColor="#575757"
-                android:shadowDx="1.0"
-                android:shadowDy="1.0"
-                android:shadowRadius="1.0"
-                android:textColor="#FFFFFF" />
-        
+        <com.bairuitech.blackboard.activity.paint.TeacherPaintView
+            android:id="@+id/view_paint"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="bottom|right"
+            android:paddingBottom="10dip"
+            android:paddingRight="15dip"
+            android:shadowColor="#575757"
+            android:shadowDx="1.0"
+            android:shadowDy="1.0"
+            android:shadowRadius="1.0"
+            android:textColor="#FFFFFF" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -101,8 +99,8 @@
                 android:layout_marginLeft="15dp"
                 android:background="@drawable/page_selector"
                 android:clickable="true"
-                android:scaleType="fitXY"
                 android:onClick="takephoto"
+                android:scaleType="fitXY"
                 android:src="@drawable/page_pre1view" />
 
             <ImageView
@@ -168,6 +166,17 @@
             android:src="@drawable/ic_eraser" />
 
         <ImageView
+            android:id="@+id/shape"
+            android:onClick="shape"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:layout_marginTop="3dip"
+            android:background="@drawable/toolbox_selector"
+            android:padding="3dip"
+            android:scaleType="center"
+            android:src="@drawable/ic_path" />
+
+        <ImageView
             android:id="@+id/color"
             android:layout_width="50dip"
             android:layout_height="50dip"
@@ -175,8 +184,7 @@
             android:background="@color/red"
             android:onClick="color"
             android:padding="3dip"
-            android:scaleType="center"
-             />
+            android:scaleType="center" />
 
         <ImageView
             android:id="@+id/clear"

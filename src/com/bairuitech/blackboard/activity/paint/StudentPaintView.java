@@ -3,14 +3,18 @@ package com.bairuitech.blackboard.activity.paint;
 /**
  * 学生 绘图
  */
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.mina.core.future.ConnectFuture;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -26,10 +30,12 @@ import android.view.View;
 
 import com.bairuitech.blackboard.BlackBoardApplication;
 import com.bairuitech.blackboard.common.JsonUtil;
+import com.bairuitech.blackboard.common.ScreenShot;
 import com.easemob.EMEventListener;
 import com.easemob.EMNotifierEvent;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMMessage;
+import com.easemob.chat.ImageMessageBody;
 import com.easemob.chat.TextMessageBody;
 
 public class StudentPaintView extends View {
@@ -54,6 +60,7 @@ public class StudentPaintView extends View {
 	private BlackBoardApplication app;
 	public ConnectFuture future;
 	private int myColor = 0xffffffff;
+	private int myLineWidth = 9;
 
 	public boolean isRecording = true;// 是否录放的标记
 	static final int frequency = 8000;// 44100;
@@ -103,7 +110,7 @@ public class StudentPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(12);
+		myPaint.setStrokeWidth(myLineWidth);
 		myPath = new Path();
 		mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
@@ -129,7 +136,7 @@ public class StudentPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(9);
+		myPaint.setStrokeWidth(myLineWidth);
 		this.myPaint = myPaint;
 	}
 
@@ -216,7 +223,21 @@ public class StudentPaintView extends View {
 
 	}
 
-	class PlayTask extends AsyncTask<Void, String, Void> {
+	// 插入图片
+	public void drawBitmap(Bitmap photo) {
+
+		try {
+			UUID uuid = UUID.randomUUID();
+			File file = File.createTempFile(uuid.toString(), "jpg");
+			ScreenShot.savePic(photo, file);
+			myCanvas.drawBitmap(photo, mX + 10, mY + 10, myPaint);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	class PlayTask extends AsyncTask<Void, EMMessage, Void> {
 		@SuppressLint("NewApi")
 		@Override
 		protected Void doInBackground(Void... args) {
@@ -226,9 +247,8 @@ public class StudentPaintView extends View {
 							@Override
 							public void onEvent(EMNotifierEvent event) {
 								EMMessage msg = (EMMessage) event.getData();
-								TextMessageBody tmsg = (TextMessageBody) msg
-										.getBody();
-								publishProgress(tmsg.getMessage());
+								publishProgress(msg);
+
 							}
 						});
 			} catch (Exception e) {
@@ -238,110 +258,104 @@ public class StudentPaintView extends View {
 		}
 
 		@Override
-		protected void onProgressUpdate(String... progress) {
+		protected void onProgressUpdate(EMMessage... progress) {
 			try {
-				String info = progress[0];
-				if (info.startsWith("[wendabang]")) {// 命令
-					if (info.startsWith("[wendabang]DrawLine")) {// 普通笔
-						edit();
-						postInvalidate();
-						String[] buff = info.split(";");
-						if (buff.length == 2) {
-							List<Map<String, Object>> list = JsonUtil
-									.str2JsonList(buff[1]);
-							for (int i = 0; i < list.size(); i++) {
-								Map<String, Object> map = list.get(i);
-								float x = Float.parseFloat(map.get("x") + "");
-								float y = Float.parseFloat(map.get("y") + "");
-								if (i == 0) {
-									touch_start(x, y);
-									postInvalidate();
-								} else if (i == list.size() - 1) {
-									touch_up();
-									postInvalidate();
-								} else {
-									touch_move(x, y);
-									postInvalidate();
+				EMMessage msg = progress[0];
+				EMMessage.Type type = msg.getType();
+				System.out.println(type+"=================266");
+				if (type == EMMessage.Type.TXT) {
+					TextMessageBody mBody = (TextMessageBody) msg.getBody();
+					String info = mBody.getMessage();
+					if (info.startsWith("[wendabang]")) {// 命令
+						
+						if (info.startsWith("[wendabang]DrawLine")) {// 普通笔
+							edit();
+							postInvalidate();
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								List<Map<String, Object>> list = JsonUtil
+										.str2JsonList(buff[1]);
+								for (int i = 0; i < list.size(); i++) {
+									Map<String, Object> map = list.get(i);
+									float x = Float.parseFloat(map.get("x")
+											+ "");
+									float y = Float.parseFloat(map.get("y")
+											+ "");
+									if (i == 0) {
+										touch_start(x, y);
+										postInvalidate();
+									} else if (i == list.size() - 1) {
+										touch_up();
+										postInvalidate();
+									} else {
+										touch_move(x, y);
+										postInvalidate();
+									}
 								}
 							}
 						}
-					}
-					if (info.startsWith("[wendabang]EraseLine")) {// 橡皮
-						eraser();
-						postInvalidate();
-						String[] buff = info.split(";");
-						if (buff.length == 2) {
-							List<Map<String, Object>> list = JsonUtil
-									.str2JsonList(buff[2]);
-							for (int i = 0; i < list.size(); i++) {
-								Map<String, Object> map = list.get(i);
-								float x = Float.parseFloat(map.get("x") + "");
-								float y = Float.parseFloat(map.get("y") + "");
-								if (i == 0) {
-									touch_start(x, y);
-									postInvalidate();
-								} else if (i == list.size() - 1) {
-									touch_up();
-									postInvalidate();
-								} else {
-									touch_move(x, y);
-									postInvalidate();
+						if (info.startsWith("[wendabang]EraseLine")) {// 橡皮
+							eraser();
+							postInvalidate();
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								List<Map<String, Object>> list = JsonUtil
+										.str2JsonList(buff[2]);
+								for (int i = 0; i < list.size(); i++) {
+									Map<String, Object> map = list.get(i);
+									float x = Float.parseFloat(map.get("x")
+											+ "");
+									float y = Float.parseFloat(map.get("y")
+											+ "");
+									if (i == 0) {
+										touch_start(x, y);
+										postInvalidate();
+									} else if (i == list.size() - 1) {
+										touch_up();
+										postInvalidate();
+									} else {
+										touch_move(x, y);
+										postInvalidate();
+									}
 								}
 							}
 						}
-					}
 
-					if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
-						clear();
+						if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
+							System.out.println("325====================="+info);
+							clear();
+							postInvalidate();
+						}
+						if (info.startsWith("[wendabang]LineColor")) {// 颜色
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								int color = Integer.parseInt(buff[1]);
+								myColor = color;
+							}
+							postInvalidate();
+						}
+						if (info.startsWith("[wendabang]LineWidth")) {// 线宽
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								Map<String, Object> m = JsonUtil.str2Json("{"
+										+ buff[1] + "}");
+								int w = Integer.parseInt(m.get("w") + "");
+								myLineWidth = w;
+							}
+							postInvalidate();
+						}
+					}
+				} else if (type == EMMessage.Type.IMAGE) {//贴图
+					System.out.println("======================349");
+					ImageMessageBody imgBody = (ImageMessageBody) msg.getBody();
+					String msgtype = msg.getStringAttribute("type");
+					if("wendabang".equals(msgtype)){
+						String filePath = imgBody.getLocalUrl();
+						Bitmap bm = getBitmapFromFile(new File(filePath),imgBody.getWidth(),imgBody.getHeight());
+						drawBitmap(bm);
 						postInvalidate();
 					}
-
 				}
-				//
-				// String[] buff = progress[0].split("");
-				// String type = buff[0]; // 消息类型
-				// if (type.equals("A")) { // audio
-				// int len = Integer.parseInt(buff[1]);
-				// byte[] audio = new byte[len];
-				// for (int i = 2; i < buff.length; i++) {
-				// audio[i - 2] = Byte.parseByte(buff[i]);
-				// }
-				// audioTrack.write(audio.clone(), 0, audio.length);
-				// }
-				// if (type.equals("D")) { // draw
-				// for (int i = 1; i < buff.length; i++) {
-				//
-				// String cmd = buff[i];
-				//
-				// float x = Float.parseFloat(buff[++i]);
-				// float y = Float.parseFloat(buff[++i]);
-				// if (cmd.equals("s")) {
-				// touch_start(x, y);
-				// postInvalidate();
-				// }
-				// if (cmd.equals("m")) {
-				// touch_move(x, y);
-				// postInvalidate();
-				// }
-				// if (cmd.equals("u")) {
-				// touch_up();
-				// postInvalidate();
-				// }
-				// if (cmd.equals("c")) {
-				// clear();
-				// postInvalidate();
-				// }
-				// if (cmd.equals("r")) {
-				// eraser();
-				// postInvalidate();
-				// }
-				// if (cmd.equals("e")) {
-				// edit();
-				// postInvalidate();
-				// }
-				// }
-				//
-				// }
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -355,6 +369,27 @@ public class StudentPaintView extends View {
 		protected void onPreExecute() {
 		}
 
+	}
+
+	public Bitmap getBitmapFromFile(File dst, int width, int height) {
+		if (null != dst && dst.exists()) {
+			BitmapFactory.Options opts = null;
+			if (width > 0 && height > 0) {
+				opts = new BitmapFactory.Options();
+				opts.inJustDecodeBounds = true;
+				BitmapFactory.decodeFile(dst.getPath(), opts);
+				// 计算图片缩放比例
+				opts.inJustDecodeBounds = false;
+				opts.inInputShareable = true;
+				opts.inPurgeable = true;
+			}
+			try {
+				return BitmapFactory.decodeFile(dst.getPath(), opts);
+			} catch (OutOfMemoryError e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 }

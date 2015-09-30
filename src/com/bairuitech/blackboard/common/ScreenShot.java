@@ -1,5 +1,6 @@
 package com.bairuitech.blackboard.common;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,7 +8,6 @@ import java.io.IOException;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.View;
 
 public class ScreenShot {
@@ -42,6 +42,22 @@ public class ScreenShot {
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(strFileName);
+			if (null != fos) {
+				b.compress(Bitmap.CompressFormat.PNG, 90, fos);
+				fos.flush();
+				fos.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	// 保存到sdcard
+	public static void savePic(Bitmap b, File file) {
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
 			if (null != fos) {
 				b.compress(Bitmap.CompressFormat.PNG, 90, fos);
 				fos.flush();

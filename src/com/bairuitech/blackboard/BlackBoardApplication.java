@@ -1,5 +1,6 @@
 package com.bairuitech.blackboard;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.easemob.chat.EMChat;
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMConversation;
 import com.easemob.chat.EMMessage;
+import com.easemob.chat.ImageMessageBody;
 import com.easemob.chat.TextMessageBody;
 import com.easemob.chatuidemo.DemoHXSDKHelper;
 
@@ -35,6 +37,37 @@ public class BlackBoardApplication extends Application {
 	public static String currentUserNick = "";
 	public static DemoHXSDKHelper hxSDKHelper = new DemoHXSDKHelper();
 
+	public void send(String username, File file) {// 插入图片
+System.out.println("=======================41");
+		EMConversation conversation = EMChatManager.getInstance()
+				.getConversation(username);
+		EMMessage message = EMMessage.createSendMessage(EMMessage.Type.IMAGE);
+		// 如果是群聊，设置chattype,默认是单聊
+
+		ImageMessageBody body = new ImageMessageBody(file);
+		// 默认超过100k的图片会压缩后发给对方，可以设置成发送原图
+		body.setSendOriginalImage(true);
+		message.setAttribute("type", "wendabang");
+		message.addBody(body);
+		message.setReceipt(username);
+		conversation.addMessage(message);
+		EMChatManager.getInstance().sendMessage(message, new EMCallBack() {
+
+			@Override
+			public void onError(int arg0, String arg1) {
+			}
+
+			@Override
+			public void onProgress(int arg0, String arg1) {
+			}
+
+			@Override
+			public void onSuccess() {
+				System.out.println("==================66");
+			}
+		});
+	}
+
 	public void send(String username, String content) {
 		EMConversation conversation = EMChatManager.getInstance()
 				.getConversation(username);
@@ -43,6 +76,7 @@ public class BlackBoardApplication extends Application {
 		// 设置消息body
 		TextMessageBody txtBody = new TextMessageBody(content);
 		message.addBody(txtBody);
+
 		// 设置接收人
 		message.setReceipt(username);
 		// 把消息加入到此会话对象中
@@ -52,12 +86,12 @@ public class BlackBoardApplication extends Application {
 
 			@Override
 			public void onError(int arg0, String arg1) {
-				System.out.println("===============59"+arg1);
+				System.out.println("===============59" + arg1);
 			}
 
 			@Override
 			public void onProgress(int arg0, String arg1) {
-				System.out.println("===============63"+arg1);
+				System.out.println("===============63" + arg1);
 			}
 
 			@Override
@@ -81,7 +115,7 @@ public class BlackBoardApplication extends Application {
 	}
 
 	public static BlackBoardApplication getInstance() {
-	
+
 		return instance;
 	}
 

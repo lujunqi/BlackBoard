@@ -112,14 +112,19 @@ public class MyCenter extends RelativeLayout {
 		learntotal.setOnClickListener(new OnClickListener() {// 学习统计
 					@Override
 					public void onClick(View arg0) {
-						Intent intent = new Intent(context,
-								WebShowActivity.class);
-						intent.putExtra("tv_title", "学习统计");
-						intent.putExtra("url", "http://www.baidu.com");
-						context.startActivity(intent);
+//						Intent intent = new Intent(context,
+//								WebShowActivity.class);
+//						intent.putExtra("tv_title", "学习统计");
+//						intent.putExtra("url", "http://www.baidu.com");
+//						context.startActivity(intent);
 					}
 				});
-
-
+		shares.setOnClickListener(new OnClickListener() {// 上传作品
+			@Override
+			public void onClick(View arg0) {
+				
+				
+			}
+		});
 	}
 }

@@ -3,6 +3,9 @@ package com.bairuitech.blackboard.activity.paint;
 /**
  * 老师的绘图
  */
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 import java.util.Vector;
 
 import android.annotation.SuppressLint;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bairuitech.blackboard.BlackBoardApplication;
+import com.bairuitech.blackboard.common.ScreenShot;
 
 public class TeacherPaintView extends View {
 	// 画笔，定义绘制属性
@@ -87,6 +91,20 @@ public class TeacherPaintView extends View {
 		toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
 	}
 
+	// 插入图片
+	public void drawBitmap(Bitmap photo) {
+
+		try {
+			UUID uuid = UUID.randomUUID();
+			File file = File.createTempFile(uuid.toString(), "jpg");
+			ScreenShot.savePic(photo, file);
+			myCanvas.drawBitmap(photo, mX + 10, mY + 10, myPaint);
+			app.send(username, file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	public void toast(String info) {
 		toast.setText(info);
@@ -94,12 +112,14 @@ public class TeacherPaintView extends View {
 	}
 
 	private String linetype = "DrawLine";
+	private int strokeWidth = 9;
 
 	/**
 	 * edit 普通笔
 	 */
 	public void edit(int myColor) {
 		this.myColor = myColor;
+		app.send(username, "[wendabang]LineColor;" + myColor);
 		Paint myPaint = new Paint();
 		myPaint.setAntiAlias(true);
 		myPaint.setDither(true);
@@ -107,7 +127,7 @@ public class TeacherPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(9);
+		myPaint.setStrokeWidth(strokeWidth);
 		this.myPaint = myPaint;
 		linetype = "DrawLine";
 		// command("e,0,0");
@@ -172,8 +192,7 @@ public class TeacherPaintView extends View {
 			// command("u,0,0");
 			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
 			// command("[wendabang]"+linetype+";[" + line + "]");
-			app.send("s38", "[wendabang]" + linetype + ";[" + line + "]");
-			// command("{\"x\":" + x + ",\"y\":" + y + "}");
+			app.send(username, "[wendabang]" + linetype + ";[" + line + "]");
 			break;
 		}
 
@@ -236,6 +255,12 @@ public class TeacherPaintView extends View {
 
 	public Vector<String> getCmds() {
 		return cmds;
+	}
+
+	public void setStrokeWidth(int strokeWidth) {
+		this.strokeWidth = strokeWidth;
+		app.send(username, "[wendabang]LineWidth; \"w\":\"" + strokeWidth
+				+ "\"");
 	}
 
 }

@@ -13,7 +13,6 @@ public class TimeServerHandler extends IoHandlerAdapter {
 
 	public void exceptionCaught(IoSession session, Throwable cause)
 			throws Exception {
-		// System.out.println("============="+session.getId());
 		cause.printStackTrace();
 	}
 

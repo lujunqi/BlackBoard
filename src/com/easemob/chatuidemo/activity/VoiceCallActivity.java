@@ -115,8 +115,7 @@ public class VoiceCallActivity extends CallActivity implements OnClickListener {
 		username = getIntent().getStringExtra("username");
 		// 语音电话是否为接收的
 		isInComingCall = getIntent().getBooleanExtra("isComingCall", false);
-		System.out.println(isInComingCall + "=====109========================"
-				+ username);
+		
 		// 设置通话人
 		nickTextView.setText(username);
 		if (!isInComingCall) {// 拨打电话
