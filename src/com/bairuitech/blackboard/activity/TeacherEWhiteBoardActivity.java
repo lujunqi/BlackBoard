@@ -13,10 +13,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -73,24 +71,14 @@ public class TeacherEWhiteBoardActivity extends Activity {
 	private void initLogic() {
 
 		view_paint.touch = true;
-		recBufSize = AudioRecord.getMinBufferSize(frequency,
-				channelConfiguration, audioEncoding);
-		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency,
-				channelConfiguration, audioEncoding, recBufSize * 10);
 
-		playBufSize = AudioTrack.getMinBufferSize(frequency,
-				channelConfiguration, audioEncoding);
-		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency,
-				channelConfiguration, audioEncoding, playBufSize,
-				AudioTrack.MODE_STREAM);
-
-//		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//		startActivityForResult(cameraIntent, CAMERA_REQUEST);
+		// Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		// startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
 
 	private static final int CAMERA_REQUEST = 1888;
 
-	public void takephoto(View v) {//插入照片
+	public void takephoto(View v) {// 插入照片
 
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);// 构造intent
 		startActivityForResult(cameraIntent, CAMERA_REQUEST);// 发出intent，并要求返回调用结果
@@ -98,7 +86,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == CAMERA_REQUEST) {
-			if(data!=null){
+			if (data != null) {
 				Bitmap photo = (Bitmap) data.getExtras().get("data");
 				view_paint.drawBitmap(photo);
 			}
@@ -206,23 +194,11 @@ public class TeacherEWhiteBoardActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		audioRecord.stop();
-
-		isRecording = false;
 		System.out.println("onDestroy====");
 
 		super.onDestroy();
 	}
 
-	static final int frequency = 8000;// 44100;
-	@SuppressWarnings("deprecation")
-	static final int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-	static final int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-	int recBufSize, playBufSize;
 
-	AudioRecord audioRecord;
-	AudioTrack audioTrack;
-	public boolean isRecording = false;// 是否录放的标记
-	public boolean isPlaying = false;// 是否录放的标记
 
 }

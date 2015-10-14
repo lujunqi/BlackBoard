@@ -5,24 +5,39 @@ package com.bairuitech.blackboard.activity.paint;
  */
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bairuitech.blackboard.BlackBoardApplication;
+import com.bairuitech.blackboard.common.JsonUtil;
 import com.bairuitech.blackboard.common.ScreenShot;
+import com.easemob.EMEventListener;
+import com.easemob.EMNotifierEvent;
+import com.easemob.chat.EMChatManager;
+import com.easemob.chat.EMMessage;
+import com.easemob.chat.ImageMessageBody;
+import com.easemob.chat.TextMessageBody;
+import com.easemob.exceptions.EaseMobException;
 
 public class TeacherPaintView extends View {
 	// 画笔，定义绘制属性
@@ -47,6 +62,7 @@ public class TeacherPaintView extends View {
 	private int myColor = 0xffffffff;
 	public boolean touch = false;
 	public String username = "";
+	private boolean isSend = true;
 
 	public TeacherPaintView(Context context) {
 		super(context);
@@ -84,22 +100,27 @@ public class TeacherPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(12);
+		myPaint.setStrokeWidth(strokeWidth);
 		myPath = new Path();
 		mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
 		toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+
+		PlayTask play = new PlayTask();
+		play.execute();
 	}
 
 	// 插入图片
 	public void drawBitmap(Bitmap photo) {
-
 		try {
+			System.out.println("=line===============111");
 			UUID uuid = UUID.randomUUID();
 			File file = File.createTempFile(uuid.toString(), "jpg");
 			ScreenShot.savePic(photo, file);
 			myCanvas.drawBitmap(photo, mX + 10, mY + 10, myPaint);
-			app.send(username, file);
+			if (isSend) {
+				app.send(username, file);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -119,7 +140,9 @@ public class TeacherPaintView extends View {
 	 */
 	public void edit(int myColor) {
 		this.myColor = myColor;
-		app.send(username, "[wendabang]LineColor;" + myColor);
+		if (isSend) {
+//			app.send(username, "[wendabang]LineColor;" + myColor);
+		}
 		Paint myPaint = new Paint();
 		myPaint.setAntiAlias(true);
 		myPaint.setDither(true);
@@ -192,7 +215,9 @@ public class TeacherPaintView extends View {
 			// command("u,0,0");
 			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
 			// command("[wendabang]"+linetype+";[" + line + "]");
-			app.send(username, "[wendabang]" + linetype + ";[" + line + "]");
+			if (isSend) {
+				app.send(username, "[wendabang]" + linetype + ";[" + line + "]");
+			}
 			break;
 		}
 
@@ -247,7 +272,9 @@ public class TeacherPaintView extends View {
 
 		myPath.reset();
 		// command("c,0,0");
-		app.send(username, "[wendabang]PanelClear; \"p\":\"1\"");
+		if (isSend) {
+			app.send(username, "[wendabang]PanelClear; \"p\":\"1\"");
+		}
 		invalidate();
 	}
 
@@ -259,8 +286,180 @@ public class TeacherPaintView extends View {
 
 	public void setStrokeWidth(int strokeWidth) {
 		this.strokeWidth = strokeWidth;
-		app.send(username, "[wendabang]LineWidth; \"w\":\"" + strokeWidth
-				+ "\"");
+		if (isSend)
+			app.send(username, "[wendabang]LineWidth; \"w\":\"" + strokeWidth
+					+ "\"");
 	}
 
+	class PlayTask extends AsyncTask<Void, Object, Void> {
+		@SuppressLint("NewApi")
+		@Override
+		protected Void doInBackground(Void... args) {
+			try {
+				EMChatManager.getInstance().registerEventListener(
+						new EMEventListener() {
+							@Override
+							public void onEvent(EMNotifierEvent event) {
+								EMMessage msg = (EMMessage) event.getData();
+								EMMessage.Type type = msg.getType();
+								if (type == EMMessage.Type.IMAGE) {// 贴图
+									final ImageMessageBody imgBody = (ImageMessageBody) msg
+											.getBody();
+									try {
+										String msgtype = msg
+												.getStringAttribute("type");
+										if ("wendabang".equals(msgtype)) {
+											Bitmap photo = getBitMBitmap(imgBody
+													.getRemoteUrl());
+											
+											publishProgress(msg,photo);
+										}
+									} catch (EaseMobException e) {
+										e.printStackTrace();
+									}
+
+								} else {
+									publishProgress(msg);
+								}
+
+							}
+						});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Object... progress) {
+			try {
+				EMMessage msg = (EMMessage)progress[0];
+				EMMessage.Type type = msg.getType();
+
+				if (type == EMMessage.Type.TXT) {
+					TextMessageBody mBody = (TextMessageBody) msg.getBody();
+					String info = mBody.getMessage();
+					if (info.startsWith("[wendabang]")) {// 命令
+
+						if (info.startsWith("[wendabang]DrawLine")) {// 普通笔
+							edit(myColor);
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								List<Map<String, Object>> list = JsonUtil
+										.str2JsonList(buff[1]);
+								for (int i = 0; i < list.size(); i++) {
+									Map<String, Object> map = list.get(i);
+									float x = Float.parseFloat(map.get("x")
+											+ "");
+									float y = Float.parseFloat(map.get("y")
+											+ "");
+									if (i == 0) {
+										touch_start(x, y);
+										postInvalidate();
+
+									} else if (i == list.size() - 1) {
+										touch_up();
+										postInvalidate();
+									} else {
+										touch_move(x, y);
+										postInvalidate();
+									}
+								}
+							}
+						}
+						if (info.startsWith("[wendabang]EraseLine")) {// 橡皮
+							eraser();
+							postInvalidate();
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								List<Map<String, Object>> list = JsonUtil
+										.str2JsonList(buff[1]);
+								for (int i = 0; i < list.size(); i++) {
+									Map<String, Object> map = list.get(i);
+									float x = Float.parseFloat(map.get("x")
+											+ "");
+									float y = Float.parseFloat(map.get("y")
+											+ "");
+									if (i == 0) {
+										touch_start(x, y);
+										postInvalidate();
+									} else if (i == list.size() - 1) {
+										touch_up();
+										postInvalidate();
+									} else {
+										touch_move(x, y);
+										postInvalidate();
+									}
+								}
+							}
+						}
+
+						if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
+							System.out
+									.println("325====================" + info);
+							isSend = false;
+							clear();
+							isSend = true;
+							postInvalidate();
+						}
+						if (info.startsWith("[wendabang]LineColor")) {// 颜色
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								int color = Integer.parseInt(buff[1]);
+								myColor = color;
+							}
+							postInvalidate();
+						}
+						if (info.startsWith("[wendabang]LineWidth")) {// 线宽
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								Map<String, Object> m = JsonUtil.str2Json("{"
+										+ buff[1] + "}");
+								int w = Integer.parseInt(m.get("w") + "");
+								strokeWidth = w;
+							}
+							postInvalidate();
+						}
+					}
+				} else if (type == EMMessage.Type.IMAGE) {// 贴图
+
+					String msgtype = msg.getStringAttribute("type");
+					if ("wendabang".equals(msgtype)) {
+
+								Bitmap photo = (Bitmap)progress[1];
+								drawBitmap(photo);
+//								myCanvas.drawBitmap(photo, 10, 10, myPaint);
+								System.out.println(photo
+										+ "----------------------"+photo.getHeight()+"==="+photo.getWidth());
+
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			super.onProgressUpdate(progress);
+		}
+
+		protected void onPostExecute(Void result) {
+		}
+
+		protected void onPreExecute() {
+		}
+
+	}
+
+	public static Bitmap getBitMBitmap(String urlpath) {
+		Bitmap map = null;
+		try {
+			URL url = new URL(urlpath);
+			URLConnection conn = url.openConnection();
+			conn.connect();
+			InputStream in;
+			in = conn.getInputStream();
+			map = BitmapFactory.decodeStream(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
 }

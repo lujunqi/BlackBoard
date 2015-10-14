@@ -21,7 +21,6 @@ import com.bairuitech.blackboard.common.Utils;
 
 /**
  * 忘记密码
- * 
  * @author HP
  * 
  */

@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.mina.core.future.ConnectFuture;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,13 +18,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bairuitech.blackboard.BlackBoardApplication;
 import com.bairuitech.blackboard.common.JsonUtil;
@@ -58,23 +54,23 @@ public class StudentPaintView extends View {
 	private int mHeight;
 	private Context context;
 	private BlackBoardApplication app;
-	public ConnectFuture future;
 	private int myColor = 0xffffffff;
-	private int myLineWidth = 9;
-
+	private int strokeWidth = 9;
+	String username = "t1";
 	public boolean isRecording = true;// 是否录放的标记
-	static final int frequency = 8000;// 44100;
-	static final int channelConfiguration = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-	static final int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-	int recBufSize, playBufSize;
-
-	public AudioTrack audioTrack;
 
 	public StudentPaintView(Context context) {
 		super(context);
 
 		this.context = context;
 		initialize();
+	}
+
+	public void setStrokeWidth(int strokeWidth) {
+		this.strokeWidth = strokeWidth;
+
+		app.send(username, "[wendabang]LineWidth; \"w\":\"" + strokeWidth
+				+ "\"");
 	}
 
 	@SuppressLint("MissingSuperCall")
@@ -101,7 +97,7 @@ public class StudentPaintView extends View {
 	 * 初始化工作
 	 */
 	public void initialize() {
-		// Get a reference to our resource table.
+		System.out.println("=================100");
 		// 绘制自由曲线用的画笔
 		myPaint = new Paint();
 		myPaint.setAntiAlias(true);
@@ -110,25 +106,21 @@ public class StudentPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(myLineWidth);
+		myPaint.setStrokeWidth(strokeWidth);
 		myPath = new Path();
 		mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
-		playBufSize = AudioTrack.getMinBufferSize(frequency,
-				channelConfiguration, audioEncoding);
-		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency,
-				channelConfiguration, audioEncoding, playBufSize,
-				AudioTrack.MODE_STREAM);
 		isRecording = true;
-		audioTrack.play();
-		PlayTask play = new PlayTask();
-		play.execute();
+
+//		PlayTask play = new PlayTask();
+//		play.execute();
 	}
 
 	/**
 	 * edit 普通笔
 	 */
-	public void edit() {
+	public void edit(int myColor) {
+		this.myColor = myColor;
 		Paint myPaint = new Paint();
 		myPaint.setAntiAlias(true);
 		myPaint.setDither(true);
@@ -136,8 +128,10 @@ public class StudentPaintView extends View {
 		myPaint.setStyle(Paint.Style.STROKE);
 		myPaint.setStrokeJoin(Paint.Join.ROUND);
 		myPaint.setStrokeCap(Paint.Cap.ROUND);
-		myPaint.setStrokeWidth(myLineWidth);
+		myPaint.setStrokeWidth(strokeWidth);
 		this.myPaint = myPaint;
+		linetype = "DrawLine";
+		postInvalidate();
 	}
 
 	// 橡皮
@@ -153,6 +147,8 @@ public class StudentPaintView extends View {
 		m_eraserPaint.setXfermode(new PorterDuffXfermode(
 				PorterDuff.Mode.DST_OUT));
 		this.myPaint = m_eraserPaint;
+		postInvalidate();
+		linetype = "EraseLine";
 	}
 
 	@Override
@@ -164,8 +160,35 @@ public class StudentPaintView extends View {
 		myCanvas = new Canvas(myBitmap);
 	}
 
+	private String linetype = "DrawLine";
+	String line = "";
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		float x = event.getX();
+		float y = event.getY();
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			touch_start2(x, y);
+			invalidate();
+			line = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
+			
+			break;
+		case MotionEvent.ACTION_MOVE:
+			touch_move2(x, y);
+			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
+			invalidate();
+
+			break;
+		case MotionEvent.ACTION_UP:
+			touch_up2();
+			invalidate();
+			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
+
+//			app.send(username, "[wendabang]" + linetype + ";[" + line + "]");
+
+			break;
+		}
 		return false;
 	}
 
@@ -173,10 +196,8 @@ public class StudentPaintView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
 		// 背景颜色
 		// canvas.drawColor(getResources().getColor(R.color.blue_dark));
-
 		// 如果不调用这个方法，绘制结束后画布将清空
 		canvas.drawBitmap(myBitmap, 0, 0, mBitmapPaint);
 
@@ -185,10 +206,12 @@ public class StudentPaintView extends View {
 	}
 
 	private void touch_start(float x, float y) {
+		
 		myPath.reset();
 		myPath.moveTo(x, y);
 		mX = x;
 		mY = y;
+		postInvalidate();
 	}
 
 	private void touch_move(float x, float y) {
@@ -199,6 +222,7 @@ public class StudentPaintView extends View {
 			mX = x;
 			mY = y;
 		}
+		postInvalidate();
 	}
 
 	private void touch_up() {
@@ -206,8 +230,34 @@ public class StudentPaintView extends View {
 		myPath.lineTo(mX, mY);
 		myCanvas.drawPath(myPath, myPaint);
 		myPath.reset();
+		postInvalidate();
 	}
 
+	private void touch_start2(float x, float y) {
+		System.out.println("==========217");
+		myPath.reset();
+		myPath.moveTo(x, y);
+		mX = x;
+		mY = y;
+	}
+
+	private void touch_move2(float x, float y) {
+		float dx = Math.abs(x - mX);
+		float dy = Math.abs(y - mY);
+		if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+			myPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+			mX = x;
+			mY = y;
+		}
+	}
+
+	private void touch_up2() {
+		myPath.lineTo(mX, mY);
+		// commit the path to our offscreen
+		myCanvas.drawPath(myPath, myPaint);
+		myPath.reset();
+	}
+	
 	/**
 	 * 清除整个图像
 	 */
@@ -216,10 +266,11 @@ public class StudentPaintView extends View {
 		myBitmap = Bitmap
 				.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
 		myCanvas = new Canvas(myBitmap);
-		// System.out.println(myBitmap);
-		// 路径重置
+
 		myPath.reset();
-		// 刷新绘制
+		// command("c,0,0");
+		app.send("t1", "[wendabang]PanelClear; \"p\":\"1\"");
+		invalidate();
 
 	}
 
@@ -248,7 +299,6 @@ public class StudentPaintView extends View {
 							public void onEvent(EMNotifierEvent event) {
 								EMMessage msg = (EMMessage) event.getData();
 								publishProgress(msg);
-
 							}
 						});
 			} catch (Exception e) {
@@ -262,15 +312,14 @@ public class StudentPaintView extends View {
 			try {
 				EMMessage msg = progress[0];
 				EMMessage.Type type = msg.getType();
-				System.out.println(type+"=================266");
+				System.out.println(type + "=================266");
 				if (type == EMMessage.Type.TXT) {
 					TextMessageBody mBody = (TextMessageBody) msg.getBody();
 					String info = mBody.getMessage();
 					if (info.startsWith("[wendabang]")) {// 命令
-						
+
 						if (info.startsWith("[wendabang]DrawLine")) {// 普通笔
-							edit();
-							postInvalidate();
+							edit(myColor);
 							String[] buff = info.split(";");
 							if (buff.length == 2) {
 								List<Map<String, Object>> list = JsonUtil
@@ -283,13 +332,13 @@ public class StudentPaintView extends View {
 											+ "");
 									if (i == 0) {
 										touch_start(x, y);
-										postInvalidate();
+
 									} else if (i == list.size() - 1) {
 										touch_up();
-										postInvalidate();
+
 									} else {
 										touch_move(x, y);
-										postInvalidate();
+
 									}
 								}
 							}
@@ -322,7 +371,8 @@ public class StudentPaintView extends View {
 						}
 
 						if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
-							System.out.println("325====================="+info);
+							System.out.println("325====================="
+									+ info);
 							clear();
 							postInvalidate();
 						}
@@ -340,18 +390,19 @@ public class StudentPaintView extends View {
 								Map<String, Object> m = JsonUtil.str2Json("{"
 										+ buff[1] + "}");
 								int w = Integer.parseInt(m.get("w") + "");
-								myLineWidth = w;
+								strokeWidth = w;
 							}
 							postInvalidate();
 						}
 					}
-				} else if (type == EMMessage.Type.IMAGE) {//贴图
+				} else if (type == EMMessage.Type.IMAGE) {// 贴图
 					System.out.println("======================349");
 					ImageMessageBody imgBody = (ImageMessageBody) msg.getBody();
 					String msgtype = msg.getStringAttribute("type");
-					if("wendabang".equals(msgtype)){
+					if ("wendabang".equals(msgtype)) {
 						String filePath = imgBody.getLocalUrl();
-						Bitmap bm = getBitmapFromFile(new File(filePath),imgBody.getWidth(),imgBody.getHeight());
+						Bitmap bm = getBitmapFromFile(new File(filePath),
+								imgBody.getWidth(), imgBody.getHeight());
 						drawBitmap(bm);
 						postInvalidate();
 					}
