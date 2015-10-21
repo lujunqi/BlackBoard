@@ -1,6 +1,9 @@
 package com.bairuitech.blackboard.activity;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +15,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +47,7 @@ public class StudentEWhiteBoardActivity extends Activity {
 	private BlackBoardApplication app;
 	private String username;
 	private ImageView color;
-
+	private ImageView shape;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,7 +66,7 @@ public class StudentEWhiteBoardActivity extends Activity {
 		color = (ImageView) this.findViewById(R.id.color);
 		view_paint.username = username;
 		view_paint.app = app;
-
+		shape =  (ImageView)this.findViewById(R.id.share);
 		myColor = 0xffffffff;
 	}
 
@@ -73,23 +78,61 @@ public class StudentEWhiteBoardActivity extends Activity {
 		// startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
 
-	private static final int CAMERA_REQUEST = 1888;
-
+	private File tempFile = new File(Environment.getExternalStorageDirectory(),
+            getPhotoFileName());
+	private static final int PHOTO_REQUEST_TAKEPHOTO = 1;// 拍照
+    private static final int PHOTO_REQUEST_GALLERY = 2;// 从相册中选择
+    private static final int PHOTO_REQUEST_CUT = 3;// 结果
+    
 	public void takephoto(View v) {// 插入照片
-
-		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);// 构造intent
-		startActivityForResult(cameraIntent, CAMERA_REQUEST);// 发出intent，并要求返回调用结果
+		Intent cameraintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraintent.putExtra(MediaStore.EXTRA_OUTPUT,
+                Uri.fromFile(tempFile));
+        startActivityForResult(cameraintent, PHOTO_REQUEST_TAKEPHOTO);
 	}
-
+	private String getPhotoFileName() {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "'IMG'_yyyyMMdd_HHmmss");
+        return dateFormat.format(date) + ".jpg";
+    }
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == CAMERA_REQUEST) {
-			if (data != null) {
-				Bitmap photo = (Bitmap) data.getExtras().get("data");
-				view_paint.drawBitmap(photo);
-			}
-		}
+		 switch (requestCode) {
+	        case PHOTO_REQUEST_TAKEPHOTO:// 当选择拍照时调用
+	            startPhotoZoom(Uri.fromFile(tempFile));
+	            break;
+	        case PHOTO_REQUEST_GALLERY:// 当选择从本地获取图片时
+	            // 做非空判断，当我们觉得不满意想重新剪裁的时候便不会报异常，下同
+	            if (data != null)
+	                startPhotoZoom(data.getData());
+	            break;
+	        case PHOTO_REQUEST_CUT:// 返回的结果
+	            if (data != null){
+	            	Bundle bundle = data.getExtras();
+	            	Bitmap photo = bundle.getParcelable("data");
+	            	view_paint.drawBitmap(photo);
+	            }
+	            break;
+	        }
+	        super.onActivityResult(requestCode, resultCode, data);
 	}
+	private void startPhotoZoom(Uri uri) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+        // crop为true是设置在开启的intent中设置显示的view可以剪裁
+        intent.putExtra("crop", "true");
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
 
+        // outputX,outputY 是剪裁图片的宽高
+        intent.putExtra("outputX", 300);
+        intent.putExtra("outputY", 300);
+        intent.putExtra("return-data", true);
+        intent.putExtra("noFaceDetection", true);
+        startActivityForResult(intent, PHOTO_REQUEST_CUT);
+    }
+	
 	public void edit(View v) {
 		view_paint.edit(myColor);
 	}
@@ -99,12 +142,13 @@ public class StudentEWhiteBoardActivity extends Activity {
 	}
 
 	public void shape(View v) {
-		final String[] items = new String[] { "9", "15", "20", "25" };
+		final String[] items = new String[] { "10", "15", "20", "25" };
 		new AlertDialog.Builder(this).setTitle("选择线宽")
 				.setItems(items, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface arg0, int which) {
+						
 						view_paint.setStrokeWidth(Integer
 								.parseInt(items[which]));
 						view_paint.edit(myColor);

@@ -9,7 +9,6 @@ public class MyHorizontalScrollView extends HorizontalScrollView {
 	public boolean touch = false;
 	public MyHorizontalScrollView(Context context) {
 		super(context);
-
 	}
 
 	public MyHorizontalScrollView(Context context, AttributeSet attrs) {

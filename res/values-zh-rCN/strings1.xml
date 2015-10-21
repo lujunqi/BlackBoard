@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">环信DEMO</string>
+    <string name="app_name">问答帮V2</string>
     <string name="text_ack_msg">已读</string>
     <string name="text_delivered_msg">送达</string>
     <string name="back">返回</string>
@@ -124,6 +124,7 @@
 	<string name="Please_enter_a_username">请输入用户名</string>
     <string name="is_down_please_wait">正在下载视频请稍候</string>
     <string name="Exit_the_group_chat">退出群聊</string>
+    
     
     <string name="not_add_myself">不能添加自己</string>
     <string name="This_user_is_already_your_friend">此用户已是你的好友</string>

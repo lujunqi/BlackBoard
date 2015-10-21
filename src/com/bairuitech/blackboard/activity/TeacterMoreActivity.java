@@ -209,7 +209,6 @@ public class TeacterMoreActivity extends Activity {
 							context.startActivity(new Intent(context, VoiceCallActivity.class).
 				                    putExtra("username", "t"+s_TeacherID).putExtra("isComingCall", false).
 				                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-						
 						}
 					});
 

@@ -22,6 +22,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -91,7 +92,6 @@ public class TeacherPaintView extends View {
 	 */
 	@SuppressLint("ShowToast")
 	public void initialize() {
-		// Get a reference to our resource table.
 		// 绘制自由曲线用的画笔
 		myPaint = new Paint();
 		myPaint.setAntiAlias(true);
@@ -109,7 +109,13 @@ public class TeacherPaintView extends View {
 		PlayTask play = new PlayTask();
 		play.execute();
 	}
-
+	// 插入矩形
+	public void drawRect(){
+		Rect mRect = new Rect(10, 10, 50, 50);
+		//开始画矩形了
+		myCanvas.drawRect(mRect, myPaint);
+		System.out.println("===============118=========");
+	}
 	// 插入图片
 	public void drawBitmap(Bitmap photo) {
 		try {
@@ -141,7 +147,7 @@ public class TeacherPaintView extends View {
 	public void edit(int myColor) {
 		this.myColor = myColor;
 		if (isSend) {
-//			app.send(username, "[wendabang]LineColor;" + myColor);
+			 app.send(username, "[wendabang]LineColor;" + myColor);
 		}
 		Paint myPaint = new Paint();
 		myPaint.setAntiAlias(true);
@@ -311,8 +317,8 @@ public class TeacherPaintView extends View {
 										if ("wendabang".equals(msgtype)) {
 											Bitmap photo = getBitMBitmap(imgBody
 													.getRemoteUrl());
-											
-											publishProgress(msg,photo);
+
+											publishProgress(msg, photo);
 										}
 									} catch (EaseMobException e) {
 										e.printStackTrace();
@@ -333,7 +339,7 @@ public class TeacherPaintView extends View {
 		@Override
 		protected void onProgressUpdate(Object... progress) {
 			try {
-				EMMessage msg = (EMMessage)progress[0];
+				EMMessage msg = (EMMessage) progress[0];
 				EMMessage.Type type = msg.getType();
 
 				if (type == EMMessage.Type.TXT) {
@@ -395,8 +401,6 @@ public class TeacherPaintView extends View {
 						}
 
 						if (info.startsWith("[wendabang]PanelClear")) {// 清屏幕
-							System.out
-									.println("325====================" + info);
 							isSend = false;
 							clear();
 							isSend = true;
@@ -425,12 +429,13 @@ public class TeacherPaintView extends View {
 
 					String msgtype = msg.getStringAttribute("type");
 					if ("wendabang".equals(msgtype)) {
-
-								Bitmap photo = (Bitmap)progress[1];
-								drawBitmap(photo);
-//								myCanvas.drawBitmap(photo, 10, 10, myPaint);
-								System.out.println(photo
-										+ "----------------------"+photo.getHeight()+"==="+photo.getWidth());
+						isSend = false;
+						Bitmap photo = (Bitmap) progress[1];
+						drawBitmap(photo);
+						isSend = true;
+						// myCanvas.drawBitmap(photo, 10, 10, myPaint);
+						System.out.println(photo + "----------------------"
+								+ photo.getHeight() + "===" + photo.getWidth());
 
 					}
 				}
