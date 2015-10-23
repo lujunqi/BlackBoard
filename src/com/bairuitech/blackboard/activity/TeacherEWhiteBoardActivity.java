@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -86,10 +87,37 @@ public class TeacherEWhiteBoardActivity extends Activity {
     private static final int PHOTO_REQUEST_CUT = 3;// 结果
     
 	public void takephoto(View v) {// 插入照片
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);  
+        builder.setIcon(R.drawable.icon);  
+        builder.setTitle("插入照片");  
+        builder.setMessage("选择照片来源");  
+        builder.setPositiveButton("拍照",  
+                new DialogInterface.OnClickListener() {  
+                    public void onClick(DialogInterface dialog, int whichButton) {  
+                    	choseImageFromCamera();  
+                    }  
+                });  
+        builder.setNeutralButton("本地照片",  
+                new DialogInterface.OnClickListener() {  
+                    public void onClick(DialogInterface dialog, int whichButton) {  
+                    	choseImageFromGallery();  
+                    }  
+                });  
+      
+        builder.show(); 
+	}
+	private void choseImageFromCamera() {
 		Intent cameraintent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraintent.putExtra(MediaStore.EXTRA_OUTPUT,
-                Uri.fromFile(tempFile));
-        startActivityForResult(cameraintent, PHOTO_REQUEST_TAKEPHOTO);
+		cameraintent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
+		startActivityForResult(cameraintent, PHOTO_REQUEST_TAKEPHOTO);
+	}
+
+	private void choseImageFromGallery() {
+		Intent intentFromGallery = new Intent();
+		// 设置文件类型
+		intentFromGallery.setType("image/*");
+		intentFromGallery.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(intentFromGallery, PHOTO_REQUEST_GALLERY);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -114,7 +142,6 @@ public class TeacherEWhiteBoardActivity extends Activity {
 	        super.onActivityResult(requestCode, resultCode, data);
 	}
 	private void startPhotoZoom(Uri uri) {
-		System.out.println("==============123");
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setDataAndType(uri, "image/*");
         // crop为true是设置在开启的intent中设置显示的view可以剪裁
@@ -132,6 +159,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
         startActivityForResult(intent, PHOTO_REQUEST_CUT);
     }
 	
+	@SuppressLint("SimpleDateFormat")
 	private String getPhotoFileName() {
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -148,15 +176,18 @@ public class TeacherEWhiteBoardActivity extends Activity {
 	}
 
 	public void shape(View v) {
-		final String[] items = new String[] { "9", "15", "20", "25" };
-		new AlertDialog.Builder(this).setTitle("选择线宽")
+		final String[] items = new String[] { "自由线", "矩形", "圆形" };
+		new AlertDialog.Builder(this).setTitle("选择形状")
 				.setItems(items, new DialogInterface.OnClickListener() {
-
 					@Override
 					public void onClick(DialogInterface arg0, int which) {
-						view_paint.setStrokeWidth(Integer
-								.parseInt(items[which]));
-						view_paint.edit(myColor);
+						if (items[which].equals("矩形")) {
+							view_paint.drawRect("RECT");
+						} else if (items[which].equals("圆形")) {
+							view_paint.drawRect("CIRCLE");
+						} else if (items[which].equals("自由线")) {
+							view_paint.edit(myColor);
+						}
 					}
 
 				}).setNegativeButton("确定", null).show();

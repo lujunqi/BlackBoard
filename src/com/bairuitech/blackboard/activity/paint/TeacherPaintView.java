@@ -22,7 +22,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -109,13 +109,17 @@ public class TeacherPaintView extends View {
 		PlayTask play = new PlayTask();
 		play.execute();
 	}
+
 	// 插入矩形
-	public void drawRect(){
-		Rect mRect = new Rect(10, 10, 50, 50);
-		//开始画矩形了
-		myCanvas.drawRect(mRect, myPaint);
-		System.out.println("===============118=========");
+	public void drawRect(String t) {
+		// myPaint.setStyle(Style.STROKE);// 空心矩形框
+
+		linetype = t;
+		// 开始画矩形了
+		// myCanvas.drawRect(new RectF(10, 10, 300, 100), myPaint);
+		// System.out.println("===============118=========");
 	}
+
 	// 插入图片
 	public void drawBitmap(Bitmap photo) {
 		try {
@@ -147,7 +151,7 @@ public class TeacherPaintView extends View {
 	public void edit(int myColor) {
 		this.myColor = myColor;
 		if (isSend) {
-			 app.send(username, "[wendabang]LineColor;" + myColor);
+			app.send(username, "[wendabang]LineColor;" + myColor);
 		}
 		Paint myPaint = new Paint();
 		myPaint.setAntiAlias(true);
@@ -190,41 +194,84 @@ public class TeacherPaintView extends View {
 	}
 
 	String line = "";
+	float x1, y1;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (!touch) {
 			return false;
 		}
-		float x = event.getX();
-		float y = event.getY();
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			touch_start(x, y);
-			invalidate();
-			// command("s," + x + "," + y);
-			// command("{\"x\":" + x + ",\"y\":" + y + "}");
-			line = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
-			invalidate();
-			break;
-		case MotionEvent.ACTION_MOVE:
-			touch_move(x, y);
-			// command("m," + x + "," + y);
-			// command("{\"x\":" + x + ",\"y\":" + y + "}");
-			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
-			invalidate();
-
-			break;
-		case MotionEvent.ACTION_UP:
-			touch_up();
-			invalidate();
-			// command("u,0,0");
-			line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
-			// command("[wendabang]"+linetype+";[" + line + "]");
-			if (isSend) {
-				app.send(username, "[wendabang]" + linetype + ";[" + line + "]");
+		if ("RECT".equals(linetype)) { // 矩形
+			float x = event.getX();
+			float y = event.getY();
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				x1 = x;
+				y1 = y;
+				break;
+			case MotionEvent.ACTION_UP:
+				myCanvas.drawRect(new RectF(x1, y1, x, y), myPaint);
+				invalidate();
+				if (isSend) {
+					app.send(username, "[wendabang]" + linetype + ";{\"x1\":"
+							+ x1 + ",\"x2\":" + x + ",\"y1\":" + y1
+							+ ",\"y2\":" + y + "}");
+				}
+				break;
 			}
-			break;
+		} else if ("CIRCLE".equals(linetype)) { // 圆形
+			float x = event.getX();
+			float y = event.getY();
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				x1 = x;
+				y1 = y;
+				break;
+			case MotionEvent.ACTION_UP:
+				// myCanvas.drawRect(new RectF(x1, y1, x, y), myPaint);
+				float r = (float) Math.sqrt((x1 - x) * (x1 - x) + (y1 - y)
+						* (y1 - y));
+				myCanvas.drawCircle(x1, y1, r, myPaint);
+				invalidate();
+				if (isSend) {
+					app.send(username, "[wendabang]" + linetype + ";{\"x\":"
+							+ x1 + ",\"y\":" + y1 + ",\"r\":" + r + "}");
+				}
+				break;
+			}
+		} else {// 线 、 橡皮
+			float x = event.getX();
+			float y = event.getY();
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				touch_start(x, y);
+				invalidate();
+				// command("s," + x + "," + y);
+				// command("{\"x\":" + x + ",\"y\":" + y + "}");
+				line = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
+				invalidate();
+				break;
+			case MotionEvent.ACTION_MOVE:
+				touch_move(x, y);
+				// command("m," + x + "," + y);
+				// command("{\"x\":" + x + ",\"y\":" + y + "}");
+				line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"},";
+				invalidate();
+
+				break;
+			case MotionEvent.ACTION_UP:
+				touch_up();
+				invalidate();
+				// command("u,0,0");
+				line += "{\"x\":\"" + x + "\",\"y\":\"" + y + "\"}";
+				// command("[wendabang]"+linetype+";[" + line + "]");
+				if (isSend) {
+					app.send(username, "[wendabang]" + linetype + ";[" + line
+							+ "]");
+
+				}
+				break;
+			}
 		}
 
 		return true;
@@ -406,6 +453,35 @@ public class TeacherPaintView extends View {
 							isSend = true;
 							postInvalidate();
 						}
+						if (info.startsWith("[wendabang]CIRCLE")) {// 画圆
+							isSend = false;
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								Map<String,Object> map = JsonUtil.str2Json(buff[1]);
+								float x = Float.parseFloat( map.get("x")+"");
+								float y = Float.parseFloat( map.get("y")+"");
+								float r = Float.parseFloat( map.get("r")+"");
+								myCanvas.drawCircle(x, y, r, myPaint);	
+							}
+							isSend = true;
+							postInvalidate();
+						}
+						if (info.startsWith("[wendabang]RECT")) {// 矩形
+							isSend = false;
+							String[] buff = info.split(";");
+							if (buff.length == 2) {
+								Map<String,Object> map = JsonUtil.str2Json(buff[1]);
+								float x1 = Float.parseFloat( map.get("x1")+"");
+								float y1 = Float.parseFloat( map.get("y1")+"");
+								float x2 = Float.parseFloat( map.get("x2")+"");
+								float y2 = Float.parseFloat( map.get("y2")+"");
+								
+								myCanvas.drawRect(new RectF(x1, y1, x2, y2), myPaint);
+							}
+							isSend = true;
+							postInvalidate();
+						}
+						
 						if (info.startsWith("[wendabang]LineColor")) {// 颜色
 							String[] buff = info.split(";");
 							if (buff.length == 2) {
