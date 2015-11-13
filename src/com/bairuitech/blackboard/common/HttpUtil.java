@@ -17,7 +17,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 
 public class HttpUtil {
-	public static final String URL = "http://120.24.76.197/asksvr/interface.php";
+	public static final String URL = "http://120.24.85.67/asksvr/interface.php";
 	public static List<Map<String, Object>> getList(String uriAPI,
 			Map<String, String> p) throws ClientProtocolException, IOException,
 			JSONException {

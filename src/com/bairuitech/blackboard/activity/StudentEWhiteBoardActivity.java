@@ -68,7 +68,7 @@ public class StudentEWhiteBoardActivity extends Activity {
 		view_paint.username = username;
 		view_paint.app = app;
 		shape = (ImageView) this.findViewById(R.id.share);
-		myColor = 0xffffffff;
+		myColor = 0x0000000;
 	}
 
 	private void initLogic() {
@@ -214,8 +214,8 @@ public class StudentEWhiteBoardActivity extends Activity {
 		list.add(map);
 
 		map = new HashMap<String, Object>();
-		map.put("color", Color.WHITE);
-		map.put("name", "白色");
+		map.put("color", Color.BLACK);
+		map.put("name", "黑色");
 		list.add(map);
 
 		LayoutInflater inflater = getLayoutInflater();

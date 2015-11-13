@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
+    android:background="#ffffff"
     tools:context=".activity.AboutActivity" >
 
     <RelativeLayout
@@ -23,7 +24,7 @@
             android:layout_width="1dip"
             android:layout_height="match_parent"
             android:layout_alignRight="@id/container"
-            android:background="#000000"
+            android:background="#ffffff"
             android:visibility="gone" />
 
         <com.bairuitech.blackboard.activity.paint.TeacherPaintView

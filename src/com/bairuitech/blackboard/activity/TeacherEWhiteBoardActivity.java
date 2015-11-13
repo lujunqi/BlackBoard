@@ -68,7 +68,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 		view_paint.username = username;
 		view_paint.app = app;
 
-		myColor = 0xffffffff;
+		myColor = 0x000000;
 	}
 
 	private void initLogic() {
@@ -214,7 +214,7 @@ public class TeacherEWhiteBoardActivity extends Activity {
 		list.add(map);
 
 		map = new HashMap<String, Object>();
-		map.put("color", Color.WHITE);
+		map.put("color", Color.BLACK);
 		map.put("name", "白色");
 		list.add(map);
 

@@ -60,7 +60,7 @@ public class TeacherPaintView extends View {
 	private int mHeight;
 	private Context context;
 	public BlackBoardApplication app;
-	private int myColor = 0xffffffff;
+	private int myColor = 0xf0000000;
 	public boolean touch = false;
 	public String username = "";
 	private boolean isSend = true;
